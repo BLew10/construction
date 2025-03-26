@@ -11,7 +11,10 @@
 	},
 	"formatter": {
 		"enabled": true,
-		"indentStyle": "tab"
+		"indentWidth": 2,
+		"indentStyle": "tab",
+		"lineWidth": 80,
+		"ignore": [".next/**/*"]
 	},
 	"organizeImports": {
 		"enabled": true
@@ -20,7 +23,8 @@
 		"enabled": true,
 		"rules": {
 			"recommended": true
-		}
+		},
+		"ignore": [".next/**/*"]
 	},
 	"javascript": {
 		"formatter": {
