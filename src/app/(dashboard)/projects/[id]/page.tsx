@@ -21,14 +21,18 @@ export default function ProjectPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params.id as string;
-  const { currentProject, setCurrentProject, isLoading, error } =
-    useProjectsStore();
+  const { currentProject, setCurrentProject, fetchProjects, isLoading, error } = useProjectsStore();
 
   useEffect(() => {
-    if (!currentProject || currentProject.id !== projectId) {
+    // First fetch all projects if they're not loaded
+    if (!currentProject) {
+      fetchProjects().then(() => {
+        setCurrentProject(projectId);
+      });
+    } else if (currentProject.id !== projectId) {
       setCurrentProject(projectId);
     }
-  }, [currentProject, projectId, setCurrentProject]);
+  }, [currentProject, projectId, setCurrentProject, fetchProjects]);
 
   if (isLoading) {
     return <div className="flex justify-center py-8">Loading project...</div>;
@@ -36,8 +40,8 @@ export default function ProjectPage() {
 
   if (error || !currentProject) {
     return (
-      <div className="text-red-500">
-        Error loading project: {error || "Project not found"}
+      <div className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded-md">
+        {error || "Project not found"}
       </div>
     );
   }
@@ -53,14 +57,6 @@ export default function ProjectPage() {
             <MapPinIcon className="mr-1 h-4 w-4" />
             {currentProject.address}
           </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            onClick={() => router.push(`/projects/${projectId}/edit`)}
-          >
-            Edit Project
-          </Button>
         </div>
       </div>
 
@@ -139,86 +135,6 @@ export default function ProjectPage() {
           </CardContent>
         </Card>
       </div>
-
-      <Tabs defaultValue="overview" className="mt-6">
-        <TabsList className="grid w-full grid-cols-4 lg:w-auto">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger
-            value="schedule"
-            onClick={() => router.push(`/projects/${projectId}/schedule`)}
-          >
-            Schedule
-          </TabsTrigger>
-          <TabsTrigger
-            value="documents"
-            onClick={() => router.push(`/projects/${projectId}/documents`)}
-          >
-            Documents
-          </TabsTrigger>
-          <TabsTrigger value="team">Team</TabsTrigger>
-        </TabsList>
-        <TabsContent value="overview" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Project Description</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>{currentProject.description || "No description available."}</p>
-            </CardContent>
-          </Card>
-
-          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <ClipboardListIcon className="mr-2 h-5 w-5" />
-                  Recent Activity
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-muted-foreground text-center py-8">
-                  No recent activity to display
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <FileTextIcon className="mr-2 h-5 w-5" />
-                  Recent Documents
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-muted-foreground text-center py-8">
-                  No recent documents to display
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="schedule" className="mt-6">
-          {/* Content will load from schedule page */}
-        </TabsContent>
-
-        <TabsContent value="documents" className="mt-6">
-          {/* Content will load from documents page */}
-        </TabsContent>
-
-        <TabsContent value="team" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Project Team</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-muted-foreground text-center py-8">
-                Team management features coming soon
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
     </div>
   );
 }

@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -39,10 +38,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { useState } from "react";
+import { useEffect } from "react";
+import { useParams } from "next/navigation";
 import { Project } from "@/types/project";
 
-// Form Schema
+// Form Schema (same as new project)
 const formSchema = z.object({
   name: z
     .string()
@@ -79,11 +79,11 @@ const formSchema = z.object({
     }),
 });
 
-export default function NewProjectPage() {
-  const { createProject, isLoading } = useProjectsStore();
+export default function EditProjectPage() {
+  const params = useParams();
+  const projectId = params.id as string;
   const router = useRouter();
-  const [startDateOpen, setStartDateOpen] = useState(false);
-  const [endDateOpen, setEndDateOpen] = useState(false);
+  const { currentProject, updateProject, isLoading, fetchProjects } = useProjectsStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -93,18 +93,56 @@ export default function NewProjectPage() {
       description: "",
       status: "planning",
       startDate: new Date(),
-      endDate: new Date(new Date().setMonth(new Date().getMonth() + 6)),
+      endDate: new Date(),
       budget: "",
-      clientId: "client-1", // Default client ID for now
+      clientId: "",
       projectType: undefined,
-      phase: "planning",
+      phase: undefined,
       contingencyBudget: "",
     },
   });
 
+  // Load project data
+  useEffect(() => {
+    if (!currentProject) {
+      fetchProjects().then(() => {
+        const project = useProjectsStore.getState().currentProject;
+        if (project) {
+          form.reset({
+            name: project.name,
+            address: project.address,
+            description: project.description || "",
+            status: project.status,
+            startDate: new Date(project.startDate),
+            endDate: new Date(project.endDate),
+            budget: project.budget.toString(),
+            clientId: project.clientId,
+            projectType: project.projectType,
+            phase: project.phase,
+            contingencyBudget: project.contingencyBudget?.toString() || "",
+          });
+        }
+      });
+    } else {
+      form.reset({
+        name: currentProject.name,
+        address: currentProject.address,
+        description: currentProject.description || "",
+        status: currentProject.status,
+        startDate: new Date(currentProject.startDate),
+        endDate: new Date(currentProject.endDate),
+        budget: currentProject.budget.toString(),
+        clientId: currentProject.clientId,
+        projectType: currentProject.projectType,
+        phase: currentProject.phase,
+        contingencyBudget: currentProject.contingencyBudget?.toString() || "",
+      });
+    }
+  }, [currentProject, form, fetchProjects]);
+
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      await createProject({
+      await updateProject(projectId, {
         name: data.name,
         address: data.address,
         description: data.description,
@@ -120,87 +158,35 @@ export default function NewProjectPage() {
           : undefined,
       });
 
-      router.push("/projects");
+      router.push(`/projects/${projectId}`);
     } catch (error) {
-      console.error("Failed to create project:", error);
+      console.error("Failed to update project:", error);
     }
   };
 
-  return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Create New Project
-        </h1>
-      </div>
+  if (!currentProject) {
+    return <div>Loading...</div>;
+  }
 
+  return (
+    <div className="max-w-4xl mx-auto py-8">
       <Card>
         <CardHeader>
-          <CardTitle>Project Details</CardTitle>
-          <CardDescription>
-            Fill out the form below to create a new construction project
-          </CardDescription>
+          <CardTitle>Edit Project</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Project Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Downtown Office Building"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
-                  name="startDate"
+                  name="name"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Start Date</FormLabel>
-                      <Popover
-                        open={startDateOpen}
-                        onOpenChange={setStartDateOpen}
-                      >
-                        <PopoverTrigger asChild>
-                          <Button
-                            type="button"
-                            variant={"outline"}
-                            className={cn(
-                              "pl-3 text-left font-normal w-full",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                            disabled={(date) => date < new Date("1900-01-01")}
-                            showSubmitButton
-                            onSubmit={() => setStartDateOpen(false)}
-                            submitButtonText="Close"
-                          />
-                        </PopoverContent>
-                      </Popover>
+                    <FormItem>
+                      <FormLabel>Project Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Downtown Office Building" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -208,63 +194,18 @@ export default function NewProjectPage() {
 
                 <FormField
                   control={form.control}
-                  name="endDate"
+                  name="address"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>End Date</FormLabel>
-                      <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
-                        <PopoverTrigger asChild>
-                          <Button
-                            type="button"
-                            variant={"outline"}
-                            className={cn(
-                              "pl-3 text-left font-normal w-full",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                            disabled={(date) => date < new Date("1900-01-01")}
-                            showSubmitButton
-                            onSubmit={() => setEndDateOpen(false)}
-                            submitButtonText="Close"
-                          />
-                        </PopoverContent>
-                      </Popover>
+                    <FormItem>
+                      <FormLabel>Address</FormLabel>
+                      <FormControl>
+                        <Input placeholder="123 Main St" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="123 Main Street, Anytown, USA"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
               <FormField
                 control={form.control}
@@ -274,7 +215,7 @@ export default function NewProjectPage() {
                     <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Brief description of the project"
+                        placeholder="Project description..."
                         className="resize-none"
                         {...field}
                       />
@@ -297,7 +238,7 @@ export default function NewProjectPage() {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a status" />
+                            <SelectValue placeholder="Select status" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -314,6 +255,120 @@ export default function NewProjectPage() {
 
                 <FormField
                   control={form.control}
+                  name="clientId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Client</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select client" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="client-1">ABC Corporation</SelectItem>
+                          <SelectItem value="client-2">XYZ Industries</SelectItem>
+                          <SelectItem value="client-3">123 Properties</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="startDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Start Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date < new Date("1900-01-01")
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="endDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>End Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date < new Date("1900-01-01")
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
                   name="budget"
                   render={({ field }) => (
                     <FormItem>
@@ -325,39 +380,21 @@ export default function NewProjectPage() {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              <FormField
-                control={form.control}
-                name="clientId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Client</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                <FormField
+                  control={form.control}
+                  name="contingencyBudget"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contingency Budget ($)</FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a client" />
-                        </SelectTrigger>
+                        <Input placeholder="50000" {...field} />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="client-1">
-                          Acme Corporation
-                        </SelectItem>
-                        <SelectItem value="client-2">
-                          Globex Industries
-                        </SelectItem>
-                        <SelectItem value="client-3">
-                          Wayne Enterprises
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
@@ -377,9 +414,7 @@ export default function NewProjectPage() {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="commercial">Commercial</SelectItem>
-                          <SelectItem value="residential">
-                            Residential
-                          </SelectItem>
+                          <SelectItem value="residential">Residential</SelectItem>
                           <SelectItem value="industrial">Industrial</SelectItem>
                           <SelectItem value="infrastructure">
                             Infrastructure
@@ -421,32 +456,16 @@ export default function NewProjectPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="contingencyBudget"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Contingency Budget ($)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="50000" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
               <div className="flex justify-end space-x-4">
                 <Button
                   variant="outline"
                   type="button"
-                  onClick={() => router.push("/projects")}
+                  onClick={() => router.push(`/projects/${projectId}`)}
                 >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? "Creating..." : "Create Project"}
+                  {isLoading ? "Saving..." : "Save Changes"}
                 </Button>
               </div>
             </form>
@@ -455,4 +474,4 @@ export default function NewProjectPage() {
       </Card>
     </div>
   );
-}
+} 

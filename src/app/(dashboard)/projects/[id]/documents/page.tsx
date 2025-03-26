@@ -45,8 +45,8 @@ export default function DocumentsPage() {
 
   const [showUploader, setShowUploader] = useState(false);
   const [filters, setFilters] = useState({
-    type: "" as DocumentType | "",
-    status: "" as DocumentStatus | "",
+    type: "all" as "all" | DocumentType,
+    status: "all" as "all" | DocumentStatus,
     search: "",
   });
 
@@ -58,8 +58,8 @@ export default function DocumentsPage() {
   const filteredDocuments = documents.filter((doc) => {
     return (
       doc.projectId === projectId &&
-      (filters.type ? doc.type === filters.type : true) &&
-      (filters.status ? doc.status === filters.status : true) &&
+      (filters.type === "all" ? true : doc.type === filters.type) &&
+      (filters.status === "all" ? true : doc.status === filters.status) &&
       (filters.search
         ? doc.name.toLowerCase().includes(filters.search.toLowerCase()) ||
           (doc.description
@@ -117,14 +117,14 @@ export default function DocumentsPage() {
               <Select
                 value={filters.type}
                 onValueChange={(value) =>
-                  setFilters({ ...filters, type: value as DocumentType | "" })
+                  setFilters({ ...filters, type: value as "all" | DocumentType })
                 }
               >
                 <SelectTrigger className="w-full md:w-[180px]">
                   <SelectValue placeholder="Document Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Types</SelectItem>
+                  <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="plan">Plans</SelectItem>
                   <SelectItem value="submittal">Submittals</SelectItem>
                   <SelectItem value="contract">Contracts</SelectItem>
@@ -139,7 +139,7 @@ export default function DocumentsPage() {
                 onValueChange={(value) =>
                   setFilters({
                     ...filters,
-                    status: value as DocumentStatus | "",
+                    status: value as "all" | DocumentStatus
                   })
                 }
               >
@@ -147,7 +147,7 @@ export default function DocumentsPage() {
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Statuses</SelectItem>
+                  <SelectItem value="all">All Statuses</SelectItem>
                   <SelectItem value="draft">Draft</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="approved">Approved</SelectItem>

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useProjectsStore, Project } from "@/store/projectsStore";
+import { useProjectsStore } from "@/store/projectsStore";
+import { Project } from "@/types";
 import {
   Card,
   CardContent,

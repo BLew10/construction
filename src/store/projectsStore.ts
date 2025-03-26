@@ -1,24 +1,13 @@
 import { create } from "zustand";
+import { Project } from "@/types/project";
 
-export interface Project {
-  id: string;
-  name: string;
-  address: string;
-  startDate: string;
-  endDate: string;
-  status: "planning" | "active" | "completed" | "onHold";
-  clientId: string;
-  budget: number;
-  description?: string;
-}
-
-interface ProjectsState {
+export interface ProjectsState {
   projects: Project[];
   currentProject: Project | null;
   isLoading: boolean;
   error: string | null;
   fetchProjects: () => Promise<void>;
-  setCurrentProject: (projectId: string) => void;
+  setCurrentProject: (id: string) => void;
   createProject: (project: Omit<Project, "id">) => Promise<void>;
   updateProject: (id: string, project: Partial<Project>) => Promise<void>;
 }
@@ -80,8 +69,18 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
   },
 
   setCurrentProject: (projectId) => {
-    const project = get().projects.find((p) => p.id === projectId) || null;
-    set({ currentProject: project });
+    const { projects, fetchProjects } = get();
+    const project = projects.find((p) => p.id === projectId);
+    
+    if (project) {
+      set({ currentProject: project });
+    } else {
+      // If project not found in state, fetch projects first
+      fetchProjects().then(() => {
+        const freshProject = get().projects.find((p) => p.id === projectId);
+        set({ currentProject: freshProject || null });
+      });
+    }
   },
 
   createProject: async (project) => {
