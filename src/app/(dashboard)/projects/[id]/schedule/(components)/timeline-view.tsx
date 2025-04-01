@@ -8,25 +8,15 @@ import {
   eachMonthOfInterval,
   differenceInMilliseconds,
 } from "date-fns";
-
-interface TimelineTask {
-  id: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-  progress: number;
-  status: string;
-  phase: string;
-  dependencies: string[];
-  assignedTo: string[];
-  criticalPath: boolean;
-}
+import { Task, TaskStatus } from "@/store/tasksStore";
 
 interface TimelineViewProps {
-  tasks: TimelineTask[];
+  tasks: Task[]; // Use the local TimelineTask interface
   startDate: Date;
   endDate: Date;
+  onEditTask?: (task: Task) => void; // Add this prop
 }
+
 // Helper to format month labels
 const formatMonthLabel = (date: Date, index: number) => {
   const showYear = date.getMonth() === 0 || index === 0;
@@ -36,7 +26,7 @@ const formatMonthLabel = (date: Date, index: number) => {
 // Define a minimum width for each month column in pixels
 const MONTH_COLUMN_WIDTH = 80; // Adjust as needed for desired spacing
 
-export function TimelineView({ tasks, startDate, endDate }: TimelineViewProps) {
+export function TimelineView({ tasks, startDate, endDate, onEditTask }: TimelineViewProps) {
   // Ensure start date is the beginning of the month and end date is the end of the month for accurate range
   const viewStartDate = new Date(
     startDate.getFullYear(),
@@ -65,7 +55,7 @@ export function TimelineView({ tasks, startDate, endDate }: TimelineViewProps) {
   const totalTimelineWidth = totalMonths * MONTH_COLUMN_WIDTH;
 
   // Helper function to calculate position and width in PIXELS
-  const getTaskStyle = (task: TimelineTask) => {
+  const getTaskStyle = (task: Task) => {
     const taskStartMs = new Date(task.startDate).getTime();
     const taskEndMs = new Date(task.endDate).getTime();
 
@@ -164,11 +154,13 @@ export function TimelineView({ tasks, startDate, endDate }: TimelineViewProps) {
               <div key={task.id} className="relative h-12">
                 <div
                   className={cn(
-                    "absolute h-8 rounded-md px-2 py-1 text-sm flex items-center overflow-hidden z-20", // Added z-20 to ensure tasks are above lines
+                    "absolute h-8 rounded-md px-2 py-1 text-sm flex items-center overflow-hidden z-20",
                     task.criticalPath ? "bg-destructive/10" : "bg-secondary",
-                    task.status === "completed" && "bg-green-500/20"
+                    task.status === "completed" && "bg-green-500/20",
+                    onEditTask && "cursor-pointer hover:brightness-95" // Add cursor and hover effect if editable
                   )}
-                  style={getTaskStyle(task)} // Use pixel-based style
+                  style={getTaskStyle(task)}
+                  onClick={() => onEditTask && onEditTask(task)} // Add click handler
                 >
                   <div className="w-full">
                     <div className="font-medium truncate">{task.name}</div>
@@ -183,3 +175,8 @@ export function TimelineView({ tasks, startDate, endDate }: TimelineViewProps) {
     </Card>
   );
 }
+
+// Helper function to get color based on status (ensure status matches TaskStatus)
+const getStatusColor = (status: string) => {
+  // ... existing code ...
+};

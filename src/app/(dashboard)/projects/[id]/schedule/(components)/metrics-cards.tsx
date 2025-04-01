@@ -5,7 +5,7 @@ interface Task {
   id: string;
   status: string;
   progress: number;
-  criticalPath: boolean;
+  criticalPath?: boolean;
 }
 
 interface MetricsCardsProps {
@@ -13,6 +13,8 @@ interface MetricsCardsProps {
 }
 
 export function MetricsCards({ tasks }: MetricsCardsProps) {
+  const criticalPathTasks = tasks.filter((task) => task.criticalPath).length;
+
   return (
     <div className="grid gap-6 grid-cols-1 md:grid-cols-4">
       <Card>
@@ -57,7 +59,7 @@ export function MetricsCards({ tasks }: MetricsCardsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {tasks.filter((t) => t.criticalPath).length}
+            {criticalPathTasks}
           </div>
           <p className="text-xs text-muted-foreground">On critical path</p>
         </CardContent>
