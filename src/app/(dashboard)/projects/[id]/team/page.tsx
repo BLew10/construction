@@ -1,18 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
-import { useProjectsStore } from "@/store/projectsStore";
-import { UserPlus } from "lucide-react";
 import { useParams } from "next/navigation";
+import { useProjectsStore } from "@/store/projectsStore";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TeamHeader } from "./(components)/team-header";
+import { TeamList } from "./(components)/team-list";
 
 // Mock team data - replace with actual data from your store
 const teamMembers = [
@@ -44,38 +36,13 @@ export default function TeamPage() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-center justify-between">
-				<h1 className="text-3xl font-bold tracking-tight">Project Team</h1>
-				<Button>
-					<UserPlus className="mr-2 h-4 w-4" /> Add Team Member
-				</Button>
-			</div>
-
+			<TeamHeader onAddMember={() => {}} />
 			<Card>
 				<CardHeader>
 					<CardTitle>Team Members</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<Table>
-						<TableHeader>
-							<TableRow>
-								<TableHead>Name</TableHead>
-								<TableHead>Role</TableHead>
-								<TableHead>Email</TableHead>
-								<TableHead>Company</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{teamMembers.map((member) => (
-								<TableRow key={member.id}>
-									<TableCell className="font-medium">{member.name}</TableCell>
-									<TableCell>{member.role}</TableCell>
-									<TableCell>{member.email}</TableCell>
-									<TableCell>{member.company}</TableCell>
-								</TableRow>
-							))}
-						</TableBody>
-					</Table>
+					<TeamList members={teamMembers} />
 				</CardContent>
 			</Card>
 		</div>

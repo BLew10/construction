@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore } from "../../../../store/authStore";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {

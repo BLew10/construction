@@ -10,6 +10,7 @@ export interface ProjectsState {
 	setCurrentProject: (id: string) => void;
 	createProject: (project: Omit<Project, "id">) => Promise<void>;
 	updateProject: (id: string, project: Partial<Project>) => Promise<void>;
+	deleteProject: (id: string) => Promise<void>;
 }
 
 export const useProjectsStore = create<ProjectsState>((set, get) => ({
@@ -127,6 +128,19 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
 		} catch (error) {
 			console.log(error);
 			set({ error: "Failed to update project", isLoading: false });
+		}
+	},
+
+	deleteProject: async (id: string) => {
+		try {
+			set({ isLoading: true });
+			await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+			set((state) => ({
+				projects: state.projects.filter(p => p.id !== id),
+				isLoading: false
+			}));
+		} catch (error) {
+			set({ error: 'Failed to delete project', isLoading: false });
 		}
 	},
 }));
