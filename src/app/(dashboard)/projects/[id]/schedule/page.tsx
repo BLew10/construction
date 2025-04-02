@@ -29,54 +29,6 @@ export default function SchedulePage() {
 		}
 	}, [projectId]);
 
-	const projectTasks: Task [] = [
-		{
-			id: "1",
-			name: "Site Preparation",
-			startDate: "2024-01-01",
-			endDate: "2024-01-15",
-			progress: 100,
-			status: "completed",
-			phase: "Foundation",
-			dependencies: [],
-			assignedTo: ["John Doe"],
-			criticalPath: true,
-			projectId: projectId,
-			isBaseline: false,
-			dependsOn: [],
-		},
-		{
-			id: "2",
-			name: "Foundation Work",
-			startDate: "2024-01-16",
-			endDate: "2027-02-15",
-			progress: 65,
-			status: "inProgress",
-			phase: "Foundation",
-			dependencies: ["1"],
-			assignedTo: ["Jane Smith"],
-			criticalPath: false,
-			projectId: projectId,
-			isBaseline: false,
-			dependsOn: ["1"],
-		},
-		{
-			id: "3",
-			name: "Structural Steel",
-			startDate: "2024-02-16",
-			endDate: "2024-03-30",
-			progress: 0,
-			status: "notStarted",
-			phase: "Superstructure",
-			dependencies: ["2"],
-			assignedTo: ["Bob Wilson"],
-			criticalPath: true,
-			projectId: projectId,
-			isBaseline: false,
-			dependsOn: ["2"],
-		},
-	];
-
 	const handleAddTask = () => {
 		setEditingTask(null);
 		setIsTaskFormOpen(true);
@@ -97,17 +49,17 @@ export default function SchedulePage() {
 	}
 
 	const projectStart =
-		projectTasks.length > 0
+		tasks.length > 0
 			? new Date(
 					Math.min(
-						...projectTasks.map((t) => new Date(t.startDate).getTime()),
+						...tasks.map((t) => new Date(t.startDate).getTime()),
 					),
 			  )
 			: new Date();
 	const projectEnd =
-		projectTasks.length > 0
+		tasks.length > 0
 			? new Date(
-					Math.max(...projectTasks.map((t) => new Date(t.endDate).getTime())),
+					Math.max(...tasks.map((t) => new Date(t.endDate).getTime())),
 			  )
 			: new Date();
 
@@ -144,13 +96,13 @@ export default function SchedulePage() {
 				</div>
 			</div>
 
-			<MetricsCards tasks={projectTasks} />
+			<MetricsCards tasks={tasks} />
 
 			{view === "list" ? (
-				<TaskList tasks={projectTasks} onEditTask={handleEditTask} />
+				<TaskList tasks={tasks} onEditTask={handleEditTask} />
 			) : (
 				<TimelineView
-					tasks={projectTasks}
+					tasks={tasks}
 					startDate={projectStart}
 					endDate={projectEnd}
 					onEditTask={handleEditTask}
@@ -161,8 +113,8 @@ export default function SchedulePage() {
 				<TaskForm
 					projectId={projectId}
 					onClose={handleCloseTaskForm}
-					existingTasks={projectTasks}
-					initialData={projectTasks[0]}
+					existingTasks={tasks}
+					initialData={tasks[0]}
 				/>
 			)}
 		</div>

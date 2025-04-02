@@ -1,3 +1,5 @@
+import { Task } from "@/store/tasksStore";
+
 export interface Project {
 	// Basic Information
 	id: string;
@@ -50,4 +52,5 @@ export interface Project {
 	createdAt?: string;
 	updatedBy?: string;
 	updatedAt?: string;
+	tasks?: Task[];
 }
