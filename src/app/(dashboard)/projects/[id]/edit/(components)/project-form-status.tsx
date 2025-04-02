@@ -2,10 +2,10 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
-import { formSchema } from "../page";
+import { projectFormSchema } from "@/types/project";
 
 interface ProjectFormStatusProps {
-  form: UseFormReturn<z.infer<typeof formSchema>>;
+  form: UseFormReturn<z.infer<typeof projectFormSchema>>;
 }
 
 export function ProjectFormStatus({ form }: ProjectFormStatusProps) {

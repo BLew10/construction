@@ -3,10 +3,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
-import { formSchema } from "../page";
+import { projectFormSchema } from "@/types/project";
 
 interface ProjectFormFieldsProps {
-  form: UseFormReturn<z.infer<typeof formSchema>>;
+  form: UseFormReturn<z.infer<typeof projectFormSchema>>;
 }
 
 export function ProjectFormFields({ form }: ProjectFormFieldsProps) {

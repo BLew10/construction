@@ -8,16 +8,14 @@ import { Form } from "@/components/ui/form";
 import { ProjectFormFields } from "../../[id]/edit/(components)/project-form-fields";
 import { ProjectFormDates } from "../../[id]/edit/(components)/project-form-dates";
 import { ProjectFormStatus } from "../../[id]/edit/(components)/project-form-status";
-
-// Reuse the form schema from edit page
-import { formSchema } from "../../[id]/edit/page";
+import { projectFormSchema } from "@/types/project";
 
 export function NewProjectForm() {
   const router = useRouter();
   const { createProject, isLoading } = useProjectsStore();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof projectFormSchema>>({
+    resolver: zodResolver(projectFormSchema),
     defaultValues: {
       name: "",
       address: "",
@@ -33,7 +31,7 @@ export function NewProjectForm() {
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: z.infer<typeof projectFormSchema>) => {
     try {
       await createProject({
         name: data.name,

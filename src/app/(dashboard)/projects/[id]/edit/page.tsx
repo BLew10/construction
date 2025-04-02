@@ -15,26 +15,7 @@ import { ProjectFormHeader } from "./(components)/project-form-header";
 import { ProjectFormFields } from "./(components)/project-form-fields";
 import { ProjectFormDates } from "./(components)/project-form-dates";
 import { ProjectFormStatus } from "./(components)/project-form-status";
-
-// Form Schema
-export const formSchema = z.object({
-	name: z.string().min(2, { message: "Project name must be at least 2 characters" }),
-	address: z.string().min(5, { message: "Address must be at least 5 characters" }),
-	description: z.string().optional(),
-	status: z.enum(["planning", "active", "completed", "onHold"]),
-	startDate: z.date(),
-	endDate: z.date(),
-	budget: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-		message: "Budget must be a positive number",
-	}),
-	clientId: z.string().min(1, { message: "Please select a client" }),
-	projectType: z.enum(["commercial", "residential", "industrial", "infrastructure", "other"]).optional(),
-	phase: z.enum(["initiation", "planning", "execution", "monitoring", "closing"]).optional(),
-	projectManagerId: z.string().optional(),
-	contingencyBudget: z.string().optional().refine((val) => !val || (!isNaN(Number(val)) && Number(val) >= 0), {
-		message: "Contingency budget must be a positive number",
-	}),
-});
+import { projectFormSchema } from "@/types/project";
 
 export default function EditProjectPage() {
 	const params = useParams();
@@ -42,8 +23,8 @@ export default function EditProjectPage() {
 	const router = useRouter();
 	const { currentProject, updateProject, isLoading, fetchProjects } = useProjectsStore();
 
-	const form = useForm<z.infer<typeof formSchema>>({
-		resolver: zodResolver(formSchema),
+	const form = useForm<z.infer<typeof projectFormSchema>>({
+		resolver: zodResolver(projectFormSchema),
 		defaultValues: {
 			name: "",
 			address: "",
@@ -97,7 +78,7 @@ export default function EditProjectPage() {
 		}
 	}, [currentProject, form, fetchProjects]);
 
-	const onSubmit = async (data: z.infer<typeof formSchema>) => {
+	const onSubmit = async (data: z.infer<typeof projectFormSchema>) => {
 		try {
 			await updateProject(projectId, {
 				name: data.name,

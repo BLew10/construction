@@ -7,10 +7,10 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
-import { formSchema } from "../page";
+import { projectFormSchema } from "@/types/project";
 
 interface ProjectFormDatesProps {
-  form: UseFormReturn<z.infer<typeof formSchema>>;
+  form: UseFormReturn<z.infer<typeof projectFormSchema>>;
 }
 
 export function ProjectFormDates({ form }: ProjectFormDatesProps) {
