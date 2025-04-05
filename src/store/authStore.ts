@@ -7,7 +7,7 @@ export type UserRole =
 	| "client"
 	| "admin";
 
-interface User {
+export interface User {
 	id: string;
 	email: string;
 	avatarUrl: string;
@@ -16,6 +16,17 @@ interface User {
 	companyId: string;
 	companyName: string;
 }
+
+// TODO: Remove this mock user
+export const mockUser: User = {
+	id: "mock-user-id-123",
+	email: "mock.user@example.com",
+	avatarUrl: "https://via.placeholder.com/150", // Placeholder image URL
+	name: "Mock User",
+	role: "admin", // Default role, adjust as needed
+	companyId: "mock-company-id-456",
+	companyName: "Mock Company LLC",
+};
 
 interface AuthState {
 	user: User | null;

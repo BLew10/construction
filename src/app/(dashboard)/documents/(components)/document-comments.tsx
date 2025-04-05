@@ -103,8 +103,8 @@ export function DocumentComments({
   );
 
   // TODO: Remove this once we have a user
-  // make user?. -> user. via a CTRL+F
-  if (false && !user) {
+  // make user. -> user. via a CTRL+F
+  if (!user) {
     return (
       <div className="text-center py-8 text-muted-foreground">
         Please log in to view and add comments.
@@ -116,9 +116,9 @@ export function DocumentComments({
     if (!newComment.trim()) return;
     await addComment({
       documentId: document.id,
-      userId: user?.id,
-      userName: user?.name || user?.email, // Use name or email
-      userAvatar: user?.avatarUrl,
+      userId: user.id,
+      userName: user.name || user.email, // Use name or email
+      userAvatar: user.avatarUrl,
       content: newComment,
       resolved: false,
     });
@@ -129,9 +129,9 @@ export function DocumentComments({
     if (!replyContent.trim()) return;
     await addComment({
       documentId: document.id,
-      userId: user?.id,
-      userName: user?.name || user?.email,
-      userAvatar: user?.avatarUrl,
+      userId: user.id,
+      userName: user.name || user.email,
+      userAvatar: user.avatarUrl,
       content: replyContent,
       parentId: parentId,
       resolved: false,
@@ -226,7 +226,7 @@ export function DocumentComments({
                 <Reply className="h-4 w-4" />
               </Button>
             )}
-            {comment.userId === user?.id && (
+            {comment.userId === user.id && (
               <>
                 <Button
                   variant="ghost"
@@ -290,11 +290,11 @@ export function DocumentComments({
             <div className="flex items-start space-x-3">
               <Avatar className="h-6 w-6">
                 <AvatarImage
-                  src={user?.avatarUrl}
-                  alt={user?.name || user?.email}
+                  src={user.avatarUrl}
+                  alt={user.name || user.email}
                 />
                 <AvatarFallback>
-                  {user?.name?.charAt(0).toUpperCase() || "U"}
+                  {user.name?.charAt(0).toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
@@ -359,11 +359,11 @@ export function DocumentComments({
         <div className="flex items-start space-x-3">
           <Avatar className="h-8 w-8">
             <AvatarImage
-              src={user?.avatarUrl}
-              alt={user?.name || user?.email}
+              src={user.avatarUrl}
+              alt={user.name || user.email}
             />
             <AvatarFallback>
-              {user?.name?.charAt(0).toUpperCase() || "U"}
+              {user.name?.charAt(0).toUpperCase() || "U"}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-2">

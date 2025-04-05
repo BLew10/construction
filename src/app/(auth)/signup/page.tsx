@@ -24,7 +24,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore, User } from "@/store/authStore";
 import {
 	Card,
 	CardContent,
@@ -87,13 +87,14 @@ export default function SignupPage() {
 
 			// For testing purposes, we'll simulate a successful registration
 			// In production, you would use the actual API response
-			const mockUser = {
+			const mockUser: User = {
 				id: "user-1",
 				email: values.email,
 				name: values.name,
 				role: values.role,
 				companyId: "company-1",
 				companyName: values.companyName,
+				avatarUrl: "https://github.com/shadcn.png",
 			};
 
 			const mockToken = "mock-jwt-token";
