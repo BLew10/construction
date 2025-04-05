@@ -51,10 +51,10 @@ export function ChangeOrderForm({ projectId, isOpen, onClose, initialData }: Cha
 			description: "",
 			status: "Pending",
 			costImpact: 0,
+			dateSubmitted: new Date(),
+			dateApproved: undefined,
 			...initialData, // Spread initial data if editing
 			// Ensure dates are Date objects if provided
-			dateSubmitted: initialData?.dateSubmitted ? new Date(initialData.dateSubmitted) : new Date(),
-			dateApproved: initialData?.dateApproved ? new Date(initialData.dateApproved) : undefined,
 		},
 	});
 
@@ -107,12 +107,12 @@ export function ChangeOrderForm({ projectId, isOpen, onClose, initialData }: Cha
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent className="sm:max-w-md">
+			<DialogContent className="w-[95vw] max-w-md mx-auto p-4 sm:p-6">
 				<DialogHeader>
 					<DialogTitle>{initialData ? "Edit Change Order" : "Add Change Order"}</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 py-4">
 						<FormField
 							control={form.control}
 							name="name"
@@ -139,7 +139,7 @@ export function ChangeOrderForm({ projectId, isOpen, onClose, initialData }: Cha
 								</FormItem>
 							)}
 						/>
-						<div className="grid grid-cols-2 gap-4">
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 							<FormField
 								control={form.control}
 								name="status"
@@ -182,7 +182,7 @@ export function ChangeOrderForm({ projectId, isOpen, onClose, initialData }: Cha
 								)}
 							/>
 						</div>
-						<div className="grid grid-cols-2 gap-4">
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 							<FormField
 								control={form.control}
 								name="dateSubmitted"
@@ -195,7 +195,7 @@ export function ChangeOrderForm({ projectId, isOpen, onClose, initialData }: Cha
 													<Button
 														variant={"outline"}
 														className={cn(
-															"pl-3 text-left font-normal",
+															"w-full pl-3 text-left font-normal",
 															!field.value && "text-muted-foreground"
 														)}
 													>
@@ -233,7 +233,7 @@ export function ChangeOrderForm({ projectId, isOpen, onClose, initialData }: Cha
 													<Button
 														variant={"outline"}
 														className={cn(
-															"pl-3 text-left font-normal",
+															"w-full pl-3 text-left font-normal",
 															!field.value && "text-muted-foreground"
 														)}
 													>
@@ -259,11 +259,11 @@ export function ChangeOrderForm({ projectId, isOpen, onClose, initialData }: Cha
 								)}
 							/>
 						</div>
-						<DialogFooter>
+						<DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0 pt-2">
 							<DialogClose asChild>
-								<Button type="button" variant="outline">Cancel</Button>
+								<Button type="button" variant="outline" className="w-full sm:w-auto">Cancel</Button>
 							</DialogClose>
-							<Button type="submit" disabled={isLoading}>
+							<Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
 								{isLoading ? "Saving..." : "Save Change Order"}
 							</Button>
 						</DialogFooter>

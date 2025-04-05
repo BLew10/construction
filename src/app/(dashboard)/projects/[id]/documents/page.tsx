@@ -34,24 +34,8 @@ export default function DocumentsPage() {
   });
 
   useEffect(() => {
-    fetchDocuments(projectId);
+    fetchDocuments();
   }, [fetchDocuments, projectId]);
-
-  // Apply filters
-  const filteredDocuments = documents.filter((doc) => {
-    return (
-      doc.projectId === projectId &&
-      (filters.type === "all" ? true : doc.type === filters.type) &&
-      (filters.status === "all" ? true : doc.status === filters.status) &&
-      (filters.search
-        ? doc.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-          (doc.description
-            ?.toLowerCase()
-            .includes(filters.search.toLowerCase()) ??
-            false)
-        : true)
-    );
-  });
 
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1024) return bytes + " B";
@@ -60,7 +44,7 @@ export default function DocumentsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <DocumentHeader onUpload={() => setShowUploader(true)} />
 
       {error && (
@@ -69,23 +53,23 @@ export default function DocumentsPage() {
         </div>
       )}
 
-      <Card>
-        <CardHeader className="pb-3">
+      <Card className="overflow-hidden">
+        <CardHeader className="pb-2 md:pb-3">
           <CardTitle>Document Library</CardTitle>
           <CardDescription>
             Manage and view all project documents in one place.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 md:p-6">
           <DocumentFilters filters={filters} setFilters={setFilters} />
 
           {isLoading ? (
-            <div className="flex justify-center py-8">
+            <div className="flex justify-center py-6 md:py-8">
               <p>Loading documents...</p>
             </div>
           ) : (
             <DocumentList
-              documents={filteredDocuments}
+              documents={documents}
               formatFileSize={formatFileSize}
             />
           )}

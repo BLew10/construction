@@ -65,19 +65,20 @@ export default function SchedulePage() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-center justify-between">
+			<div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
 				<div>
-					<h1 className="text-3xl font-bold tracking-tight">
+					<h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
 						Project Schedule
 					</h1>
 					<p className="text-muted-foreground mt-2">
 						Track project timeline and task dependencies
 					</p>
 				</div>
-				<div className="flex gap-4">
+				<div className="flex flex-wrap gap-2">
 					<Button
 						variant={view === "timeline" ? "default" : "outline"}
 						onClick={() => setView("timeline")}
+						className="flex-1 sm:flex-none"
 					>
 						<Calendar className="mr-2 h-4 w-4" />
 						Timeline
@@ -85,11 +86,12 @@ export default function SchedulePage() {
 					<Button
 						variant={view === "list" ? "default" : "outline"}
 						onClick={() => setView("list")}
+						className="flex-1 sm:flex-none"
 					>
 						<List className="mr-2 h-4 w-4" />
 						List
 					</Button>
-					<Button onClick={handleAddTask}>
+					<Button onClick={handleAddTask} className="flex-1 sm:flex-none">
 						<Plus className="mr-2 h-4 w-4" />
 						Add Task
 					</Button>
@@ -114,7 +116,7 @@ export default function SchedulePage() {
 					projectId={projectId}
 					onClose={handleCloseTaskForm}
 					existingTasks={tasks}
-					initialData={tasks[0]}
+					initialData={editingTask}
 				/>
 			)}
 		</div>

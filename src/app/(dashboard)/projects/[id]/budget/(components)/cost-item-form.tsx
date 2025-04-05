@@ -89,12 +89,12 @@ export function CostItemForm({ projectId, isOpen, onClose, initialData }: CostIt
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent className="sm:max-w-[425px]">
+			<DialogContent className="w-[95vw] max-w-md mx-auto p-4 sm:p-6">
 				<DialogHeader>
 					<DialogTitle>{initialData ? "Edit Cost Item" : "Add Cost Item"}</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 py-4">
 						<FormField
 							control={form.control}
 							name="category"
@@ -121,7 +121,7 @@ export function CostItemForm({ projectId, isOpen, onClose, initialData }: CostIt
 								</FormItem>
 							)}
 						/>
-						<div className="grid grid-cols-2 gap-4">
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 							<FormField
 								control={form.control}
 								name="budgeted"
@@ -161,11 +161,11 @@ export function CostItemForm({ projectId, isOpen, onClose, initialData }: CostIt
 								)}
 							/>
 						</div>
-						<DialogFooter>
+						<DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0 pt-2">
 							<DialogClose asChild>
-								<Button type="button" variant="outline">Cancel</Button>
+								<Button type="button" variant="outline" className="w-full sm:w-auto">Cancel</Button>
 							</DialogClose>
-							<Button type="submit" disabled={isLoading}>
+							<Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
 								{isLoading ? "Saving..." : "Save Cost Item"}
 							</Button>
 						</DialogFooter>

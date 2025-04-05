@@ -154,19 +154,19 @@ export default function ProjectBudgetPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Project Budget</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Project Budget</h1>
+          <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
             Track costs, compare against budget, and manage change orders.
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={handleAddCostItem} variant="outline" size="sm">
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button onClick={handleAddCostItem} variant="outline" size="sm" className="w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" />
             Add Cost Item
           </Button>
-          <Button onClick={handleAddChangeOrder} variant="outline" size="sm">
+          <Button onClick={handleAddChangeOrder} variant="outline" size="sm" className="w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" />
             Add Change Order
           </Button>
@@ -184,12 +184,12 @@ export default function ProjectBudgetPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5" />
             Cost Breakdown
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-2 sm:px-6">
           <CostBreakdownTable
             costItems={costItems}
             onEdit={handleEditCostItem}
@@ -200,12 +200,12 @@ export default function ProjectBudgetPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileWarning className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <FileWarning className="h-4 w-4 sm:h-5 sm:w-5" />
             Change Orders
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-2 sm:px-6">
           <ChangeOrdersTable
             changeOrders={changeOrders}
             onEdit={handleEditChangeOrder}

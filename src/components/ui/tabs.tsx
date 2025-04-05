@@ -73,13 +73,13 @@ function TabsList({
       {/* Scrollable container */}
       <div
         ref={scrollRef}
-        className="overflow-x-auto scrollbar-none pb-2"
+        className="overflow-x-auto no-scrollbar pb-2"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         <TabsPrimitive.List
           data-slot="tabs-list"
           className={cn(
-            "bg-muted text-muted-foreground inline-flex h-10 mx-auto items-center justify-around rounded-lg p-1 w-full ",
+            "bg-muted text-muted-foreground inline-flex h-10 mx-auto items-center justify-around rounded-lg p-1 w-full no-scrollbar",
             className
           )}
           {...props}
@@ -103,13 +103,40 @@ function TabsTrigger({
   className,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+
+  const handleClick = React.useCallback(() => {
+    // Find the scrollable container (parent with overflow-x-auto)
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+
+    const scrollContainer = trigger.closest(".overflow-x-auto");
+    if (!scrollContainer) return;
+
+    // Calculate position to center this tab in the scroll container
+    const containerWidth = scrollContainer.clientWidth;
+    const triggerWidth = trigger.offsetWidth;
+    const triggerLeft = trigger.offsetLeft;
+
+    // The scroll position needed to center the tab
+    const scrollPosition = triggerLeft - containerWidth / 2 + triggerWidth / 2;
+
+    // Smooth scroll to the calculated position
+    scrollContainer.scrollTo({
+      left: Math.max(0, scrollPosition),
+      behavior: "smooth",
+    });
+  }, []);
+
   return (
     <TabsPrimitive.Trigger
+      ref={triggerRef}
       data-slot="tabs-trigger"
       className={cn(
         "data-[state=active]:bg-background data-[state=active]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/50 inline-flex h-9 min-w-[100px] flex-shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent px-3 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 sm:flex-1",
         className
       )}
+      onClick={handleClick}
       {...props}
     />
   );

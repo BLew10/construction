@@ -22,7 +22,7 @@ interface DocumentFiltersProps {
 
 export function DocumentFilters({ filters, setFilters }: DocumentFiltersProps) {
   return (
-    <div className="flex flex-col md:flex-row gap-4 mb-6">
+    <div className="flex flex-col space-y-3 md:flex-row md:space-y-0 md:gap-4 mb-4 md:mb-6">
       <div className="relative flex-1">
         <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
@@ -34,7 +34,7 @@ export function DocumentFilters({ filters, setFilters }: DocumentFiltersProps) {
         />
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 md:w-2/3">
+      <div className="grid grid-cols-2 gap-3 md:flex md:w-auto">
         <Select
           value={filters.type}
           onValueChange={(value) =>
@@ -44,7 +44,7 @@ export function DocumentFilters({ filters, setFilters }: DocumentFiltersProps) {
             })
           }
         >
-          <SelectTrigger className="w-full md:w-[180px]">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Document Type" />
           </SelectTrigger>
           <SelectContent>
@@ -67,7 +67,7 @@ export function DocumentFilters({ filters, setFilters }: DocumentFiltersProps) {
             })
           }
         >
-          <SelectTrigger className="w-full md:w-[180px]">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>

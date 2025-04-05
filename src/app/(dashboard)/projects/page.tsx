@@ -5,6 +5,7 @@ import { useProjectsStore } from "@/store/projectsStore";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProjectsHeader } from "./(components)/projects-header";
 import { ProjectsList } from "./(components)/projects-list";
+import { Loader2 } from "lucide-react";
 
 export default function ProjectsPage() {
   const { projects, fetchProjects, deleteProject, isLoading, error } =
@@ -21,26 +22,31 @@ export default function ProjectsPage() {
       project.address.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <ProjectsHeader
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
 
-      <Card>
-        <CardContent className="p-0">
-          <ProjectsList projects={filteredProjects} onDelete={deleteProject} />
-        </CardContent>
-      </Card>
+      {error && (
+        <div className="text-red-600 p-3 bg-red-50 rounded-md text-sm">
+          Error loading projects: {error}
+        </div>
+      )}
+
+      {isLoading && projects.length === 0 ? (
+        <div className="flex justify-center items-center h-48">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <span className="ml-2 text-sm">Loading projects...</span>
+        </div>
+      ) : (
+        <Card>
+          <CardContent className="p-0 sm:p-1">
+            <ProjectsList projects={filteredProjects} onDelete={deleteProject} />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

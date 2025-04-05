@@ -123,7 +123,7 @@ export default function EditProjectPage() {
 								>
 									Cancel
 								</Button>
-								<Button type="submit" disabled={isLoading}>
+								<Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
 									{isLoading ? "Saving..." : "Save Changes"}
 								</Button>
 							</div>

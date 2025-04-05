@@ -9,25 +9,48 @@ import {
   differenceInMilliseconds,
 } from "date-fns";
 import { Task, TaskStatus } from "@/store/tasksStore";
+import { useState, useEffect } from "react";
 
 interface TimelineViewProps {
-  tasks: Task[]; // Use the local TimelineTask interface
+  tasks: Task[]; 
   startDate: Date;
   endDate: Date;
-  onEditTask?: (task: Task) => void; // Add this prop
+  onEditTask?: (task: Task) => void;
 }
 
-// Helper to format month labels
 const formatMonthLabel = (date: Date, index: number) => {
   const showYear = date.getMonth() === 0 || index === 0;
   return showYear ? format(date, "MMM yyyy") : format(date, "MMM");
 };
 
-// Define a minimum width for each month column in pixels
-const MONTH_COLUMN_WIDTH = 80; // Adjust as needed for desired spacing
+// Responsive column width based on screen size
+const useMonthColumnWidth = () => {
+  const [columnWidth, setColumnWidth] = useState(80);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setColumnWidth(60); // Smaller width on small screens
+      } else {
+        setColumnWidth(80); // Default width on larger screens
+      }
+    };
+    
+    // Set initial value
+    handleResize();
+    
+    // Listen for window resize
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  return columnWidth;
+};
 
 export function TimelineView({ tasks, startDate, endDate, onEditTask }: TimelineViewProps) {
-  // Ensure start date is the beginning of the month and end date is the end of the month for accurate range
+  const MONTH_COLUMN_WIDTH = useMonthColumnWidth();
+  
+  // Ensure start date is the beginning of the month and end date is the end of the month
   const viewStartDate = new Date(
     startDate.getFullYear(),
     startDate.getMonth(),
@@ -37,7 +60,7 @@ export function TimelineView({ tasks, startDate, endDate, onEditTask }: Timeline
     endDate.getFullYear(),
     endDate.getMonth() + 1,
     0
-  ); // Day 0 gets the last day of the previous month
+  );
 
   const projectDurationMs = differenceInMilliseconds(
     viewEndDate,
@@ -83,30 +106,23 @@ export function TimelineView({ tasks, startDate, endDate, onEditTask }: Timeline
 
   return (
     <Card>
-      {/* Make CardContent scrollable horizontally */}
-      <CardContent className="p-6 overflow-x-auto">
-        {/* Wrapper div to establish the total width for scrolling */}
-        <div className="relative" style={{ width: `${totalTimelineWidth}px` }}>
+      <CardContent className="p-2 sm:p-4 md:p-6 overflow-x-auto">
+        <div className="relative" style={{ width: `${totalTimelineWidth}px`, minWidth: "100%" }}>
           {/* Timeline header */}
-          <div className="relative h-10 mb-4 border-b z-10">
-            {" "}
-            {/* Added z-10 */}
+          <div className="relative h-8 sm:h-10 mb-2 sm:mb-4 border-b z-10">
             {monthsInRange.map((date, index) => {
               const leftPosition = index * MONTH_COLUMN_WIDTH;
 
               return (
                 <div
                   key={`header-${index}`}
-                  className="absolute top-0 text-sm h-full flex items-center" // Use flex to center vertically
+                  className="absolute top-0 text-xs sm:text-sm h-full flex items-center"
                   style={{
                     left: `${leftPosition}px`,
                     width: `${MONTH_COLUMN_WIDTH}px`,
                   }}
                 >
-                  {/* Month label */}
-                  <div className="text-muted-foreground px-2">
-                    {" "}
-                    {/* Add padding */}
+                  <div className="text-muted-foreground px-1 sm:px-2 truncate">
                     {formatMonthLabel(date, index)}
                   </div>
                 </div>
@@ -116,8 +132,6 @@ export function TimelineView({ tasks, startDate, endDate, onEditTask }: Timeline
 
           {/* Vertical Grid Lines (Month and Year) - Rendered behind tasks */}
           <div className="absolute inset-0 top-0 bottom-0">
-            {" "}
-            {/* Changed: Lines container */}
             {monthsInRange.map((date, index) => {
               const isYearStart = date.getMonth() === 0;
               const leftPosition = index * MONTH_COLUMN_WIDTH;
@@ -128,17 +142,17 @@ export function TimelineView({ tasks, startDate, endDate, onEditTask }: Timeline
                   className="absolute top-0 bottom-0"
                   style={{ left: `${leftPosition}px` }}
                 >
-                  {/* Month grid line (start of the month) */}
+                  {/* Month grid line */}
                   <div
-                    className="absolute top-0 bottom-0 left-0 w-px border-l border-dashed border-border/30" // Changed: top-0, bottom-0
-                    style={{ zIndex: 0 }} // Ensure lines are behind tasks
+                    className="absolute top-0 bottom-0 left-0 w-px border-l border-dashed border-border/30"
+                    style={{ zIndex: 0 }}
                   />
 
                   {/* Year divider */}
                   {isYearStart && hasMultipleYears && index > 0 && (
                     <div
-                      className="absolute top-0 bottom-0 left-0 w-px bg-foreground/30" // Changed: top-0, bottom-0, bg-foreground/30 for distinction
-                      style={{ zIndex: 1 }} // Ensure year line is above month line but behind tasks
+                      className="absolute top-0 bottom-0 left-0 w-px bg-foreground/30"
+                      style={{ zIndex: 1 }}
                     />
                   )}
                 </div>
@@ -147,28 +161,31 @@ export function TimelineView({ tasks, startDate, endDate, onEditTask }: Timeline
           </div>
 
           {/* Tasks */}
-          <div className="relative space-y-4 mt-8">
-            {" "}
-            {/* Removed h-full, ensure tasks are above lines */}
+          <div className="relative space-y-2 sm:space-y-4 mt-4 sm:mt-8">
             {tasks.map((task) => (
-              <div key={task.id} className="relative h-12">
+              <div key={task.id} className="relative h-8 sm:h-12">
                 <div
                   className={cn(
-                    "absolute h-8 rounded-md px-2 py-1 text-sm flex items-center overflow-hidden z-20",
+                    "absolute h-6 sm:h-8 rounded-md px-1 sm:px-2 py-1 text-xs sm:text-sm flex items-center overflow-hidden z-20",
                     task.criticalPath ? "bg-destructive/10" : "bg-secondary",
                     task.status === "completed" && "bg-green-500/20",
-                    onEditTask && "cursor-pointer hover:brightness-95" // Add cursor and hover effect if editable
+                    onEditTask && "cursor-pointer hover:brightness-95 active:brightness-90"
                   )}
                   style={getTaskStyle(task)}
-                  onClick={() => onEditTask && onEditTask(task)} // Add click handler
+                  onClick={() => onEditTask && onEditTask(task)}
                 >
                   <div className="w-full">
-                    <div className="font-medium truncate">{task.name}</div>
+                    <div className="font-medium truncate text-xs sm:text-sm">{task.name}</div>
                     <Progress value={task.progress} className="h-1 mt-1" />
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Touch-friendly hint for small screens */}
+          <div className="sm:hidden text-xs text-center text-muted-foreground mt-2 italic">
+            Swipe horizontally to see more
           </div>
         </div>
       </CardContent>

@@ -177,7 +177,7 @@ export default function TaskForm({
 
 	return (
 		<Dialog open onOpenChange={onClose}>
-			<DialogContent className="max-w-2xl">
+			<DialogContent className="w-[95vw] max-w-2xl p-4 sm:p-6">
 				<DialogHeader>
 					<DialogTitle>{isEditing ? "Edit Task" : "Add New Task"}</DialogTitle>
 					<DialogDescription>
@@ -188,7 +188,7 @@ export default function TaskForm({
 				</DialogHeader>
 
 				<Form {...form}>
-					<div className="max-h-[70vh] overflow-y-auto pr-6 pl-1">
+					<div className="max-h-[70vh] overflow-y-auto pr-2 sm:pr-6 pl-1">
 						<form
 							onSubmit={form.handleSubmit(handleSubmit)}
 							className="space-y-4"
@@ -225,7 +225,7 @@ export default function TaskForm({
 								)}
 							/>
 
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 								<FormField
 									control={form.control}
 									name="startDate"
@@ -237,10 +237,7 @@ export default function TaskForm({
 													<FormControl>
 														<Button
 															variant="outline"
-															className={cn(
-																"w-full pl-3 text-left font-normal",
-																!field.value && "text-muted-foreground",
-															)}
+															className="w-full pl-3 text-left font-normal"
 														>
 															{field.value ? (
 																format(field.value, "PPP")
@@ -275,10 +272,7 @@ export default function TaskForm({
 													<FormControl>
 														<Button
 															variant="outline"
-															className={cn(
-																"w-full pl-3 text-left font-normal",
-																!field.value && "text-muted-foreground",
-															)}
+															className="w-full pl-3 text-left font-normal"
 														>
 															{field.value ? (
 																format(field.value, "PPP")
@@ -307,7 +301,7 @@ export default function TaskForm({
 								/>
 							</div>
 
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 								<FormField
 									control={form.control}
 									name="status"
@@ -360,7 +354,7 @@ export default function TaskForm({
 								/>
 							</div>
 
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 								<FormField
 									control={form.control}
 									name="trade"
@@ -442,11 +436,11 @@ export default function TaskForm({
 								)}
 							/>
 
-							<DialogFooter className="pt-4">
-								<Button type="button" variant="outline" onClick={onClose}>
+							<DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-0 pt-2">
+								<Button type="button" variant="outline" onClick={onClose} className="w-full sm:w-auto">
 									Cancel
 								</Button>
-								<Button type="submit" disabled={isLoading}>
+								<Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
 									{isLoading
 										? isEditing
 											? "Saving..."

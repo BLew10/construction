@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useProjectsStore } from "@/store/projectsStore";
 import { format } from "date-fns";
 import {
@@ -15,7 +15,6 @@ import { Badge } from "@/components/ui/badge";
 
 export default function ProjectPage() {
   const params = useParams();
-  const router = useRouter();
   const projectId = params.id as string;
   const { currentProject, setCurrentProject, fetchProjects, isLoading, error } =
     useProjectsStore();
@@ -45,25 +44,25 @@ export default function ProjectPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
             {currentProject.name}
           </h1>
           <div className="flex items-center mt-2 text-muted-foreground">
-            <MapPinIcon className="mr-1 h-4 w-4" />
-            {currentProject.address}
+            <MapPinIcon className="mr-1 h-4 w-4 flex-shrink-0" />
+            <span className="truncate">{currentProject.address}</span>
           </div>
         </div>
       </div>
 
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between py-4">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="h-full">
+          <CardHeader className="flex flex-row items-center justify-between py-3 sm:py-4">
             <CardTitle className="text-sm font-medium">Status</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold mb-1">
+            <div className="text-xl sm:text-2xl font-bold mb-1">
               <Badge
                 className="text-sm"
                 variant={
@@ -85,13 +84,13 @@ export default function ProjectPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between py-4">
+        <Card className="h-full">
+          <CardHeader className="flex flex-row items-center justify-between py-3 sm:py-4">
             <CardTitle className="text-sm font-medium">Timeline</CardTitle>
             <CalendarIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-xl sm:text-2xl font-bold">
               {Math.ceil(
                 (new Date(currentProject.endDate).getTime() -
                   new Date(currentProject.startDate).getTime()) /
@@ -100,19 +99,19 @@ export default function ProjectPage() {
               weeks
             </div>
             <p className="text-xs text-muted-foreground">
-              {format(new Date(currentProject.startDate), "MMM d, yyyy")} -
+              {format(new Date(currentProject.startDate), "MMM d, yyyy")} -{" "}
               {format(new Date(currentProject.endDate), "MMM d, yyyy")}
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between py-4">
+        <Card className="h-full">
+          <CardHeader className="flex flex-row items-center justify-between py-3 sm:py-4">
             <CardTitle className="text-sm font-medium">Budget</CardTitle>
             <DollarSignIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-xl sm:text-2xl font-bold">
               ${currentProject.budget.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -121,13 +120,13 @@ export default function ProjectPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between py-4">
+        <Card className="h-full">
+          <CardHeader className="flex flex-row items-center justify-between py-3 sm:py-4">
             <CardTitle className="text-sm font-medium">Team</CardTitle>
             <UsersIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
+            <div className="text-xl sm:text-2xl font-bold">12</div>
             <p className="text-xs text-muted-foreground">Team members</p>
           </CardContent>
         </Card>

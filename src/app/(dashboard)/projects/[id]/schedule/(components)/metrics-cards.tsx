@@ -16,25 +16,25 @@ export function MetricsCards({ tasks }: MetricsCardsProps) {
   const criticalPathTasks = tasks.filter((task) => task.criticalPath).length;
 
   return (
-    <div className="grid gap-6 grid-cols-1 md:grid-cols-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between py-4">
-          <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
+    <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-4">
+      <Card className="shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between py-2 sm:py-4">
+          <CardTitle className="text-xs sm:text-sm font-medium">Total Tasks</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{tasks.length}</div>
+        <CardContent className="pb-3 sm:pb-4">
+          <div className="text-xl sm:text-2xl font-bold">{tasks.length}</div>
           <p className="text-xs text-muted-foreground">
             {tasks.filter((t) => t.status === "completed").length} completed
           </p>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between py-4">
-          <CardTitle className="text-sm font-medium">Progress</CardTitle>
+      <Card className="shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between py-2 sm:py-4">
+          <CardTitle className="text-xs sm:text-sm font-medium">Progress</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
+        <CardContent className="pb-3 sm:pb-4">
+          <div className="text-xl sm:text-2xl font-bold">
             {Math.round(
               (tasks.reduce((acc, task) => acc + task.progress, 0) /
                 (tasks.length * 100)) *
@@ -53,24 +53,24 @@ export function MetricsCards({ tasks }: MetricsCardsProps) {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between py-4">
-          <CardTitle className="text-sm font-medium">Critical Tasks</CardTitle>
+      <Card className="shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between py-2 sm:py-4">
+          <CardTitle className="text-xs sm:text-sm font-medium">Critical Tasks</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
+        <CardContent className="pb-3 sm:pb-4">
+          <div className="text-xl sm:text-2xl font-bold">
             {criticalPathTasks}
           </div>
           <p className="text-xs text-muted-foreground">On critical path</p>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between py-4">
-          <CardTitle className="text-sm font-medium">Delayed Tasks</CardTitle>
+      <Card className="shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between py-2 sm:py-4">
+          <CardTitle className="text-xs sm:text-sm font-medium">Delayed Tasks</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-destructive">
+        <CardContent className="pb-3 sm:pb-4">
+          <div className="text-xl sm:text-2xl font-bold text-destructive">
             {tasks.filter((t) => t.status === "delayed").length}
           </div>
           <p className="text-xs text-muted-foreground">Require attention</p>
