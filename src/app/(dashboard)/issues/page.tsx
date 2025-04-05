@@ -19,33 +19,31 @@ export default function GlobalIssuesPage() {
     };
 
 	return (
-		<div className="space-y-6">
-			<div className="flex items-center justify-between flex-wrap gap-4">
+		<div className="space-y-4 md:space-y-6">
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
 				<div>
-					<h1 className="text-3xl font-bold tracking-tight">All Issues</h1>
-					<p className="text-muted-foreground mt-2">
+					<h1 className="text-2xl sm:text-3xl font-bold tracking-tight">All Issues</h1>
+					<p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
 						View, filter, and manage issues across all your projects.
 					</p>
 				</div>
-				{/* Button moved to DataTable component */}
 			</div>
 
-			{error && <div className="text-red-600">Error loading issues: {error}</div>}
+			{error && <div className="text-red-600 p-3 bg-red-50 rounded-md text-sm sm:text-base">Error loading issues: {error}</div>}
 
             {/* Render DataTable or Loading state */}
             {isLoading && issues.length === 0 ? (
-                 <div className="flex justify-center items-center h-64">
-                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                    <span className="ml-2">Loading issues...</span>
+                 <div className="flex justify-center items-center h-48 sm:h-64">
+                    <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-muted-foreground" />
+                    <span className="ml-2 text-sm sm:text-base">Loading issues...</span>
                 </div>
             ) : (
                 <IssuesDataTable
                     data={issues}
                     isLoading={isLoading}
-                    onCreateNew={handleCreateNewIssue} // Pass handler
+                    onCreateNew={handleCreateNewIssue}
                 />
             )}
-
 
             {/* Issue Form Dialog */}
             <IssueForm

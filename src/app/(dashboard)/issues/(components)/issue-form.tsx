@@ -80,21 +80,21 @@ export function IssueForm({ isOpen, onClose }: IssueFormProps) {
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent className="sm:max-w-[600px]">
+			<DialogContent className="sm:max-w-[600px] w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
-					<DialogTitle>Create New Issue</DialogTitle>
+					<DialogTitle className="text-xl">Create New Issue</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 py-2 sm:space-y-4 sm:py-4">
                         <FormField
 							control={form.control}
 							name="projectId"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Project *</FormLabel>
+									<FormLabel className="text-sm sm:text-base">Project *</FormLabel>
 									<Select onValueChange={field.onChange} defaultValue={field.value} disabled={projectsLoading}>
 										<FormControl>
-											<SelectTrigger>
+											<SelectTrigger className="h-9 sm:h-10">
 												<SelectValue placeholder={projectsLoading ? "Loading projects..." : "Select project"} />
 											</SelectTrigger>
 										</FormControl>
@@ -106,7 +106,7 @@ export function IssueForm({ isOpen, onClose }: IssueFormProps) {
 											))}
 										</SelectContent>
 									</Select>
-									<FormMessage />
+									<FormMessage className="text-xs" />
 								</FormItem>
 							)}
 						/>
@@ -115,11 +115,15 @@ export function IssueForm({ isOpen, onClose }: IssueFormProps) {
 							name="title"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Title *</FormLabel>
+									<FormLabel className="text-sm sm:text-base">Title *</FormLabel>
 									<FormControl>
-										<Input placeholder="Briefly describe the issue" {...field} />
+										<Input 
+                                            placeholder="Briefly describe the issue" 
+                                            {...field} 
+                                            className="h-9 sm:h-10" 
+                                        />
 									</FormControl>
-									<FormMessage />
+									<FormMessage className="text-xs" />
 								</FormItem>
 							)}
 						/>
@@ -128,24 +132,28 @@ export function IssueForm({ isOpen, onClose }: IssueFormProps) {
 							name="description"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Description</FormLabel>
+									<FormLabel className="text-sm sm:text-base">Description</FormLabel>
 									<FormControl>
-										<Textarea placeholder="Provide more details (optional)" {...field} />
+										<Textarea 
+                                            placeholder="Provide more details (optional)" 
+                                            {...field} 
+                                            className="min-h-[80px] sm:min-h-[120px]" 
+                                        />
 									</FormControl>
-									<FormMessage />
+									<FormMessage className="text-xs" />
 								</FormItem>
 							)}
 						/>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                             <FormField
                                 control={form.control}
                                 name="status"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Status</FormLabel>
+                                        <FormLabel className="text-sm sm:text-base">Status</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
-                                                <SelectTrigger>
+                                                <SelectTrigger className="h-9 sm:h-10">
                                                     <SelectValue placeholder="Select status" />
                                                 </SelectTrigger>
                                             </FormControl>
@@ -155,7 +163,7 @@ export function IssueForm({ isOpen, onClose }: IssueFormProps) {
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                        <FormMessage />
+                                        <FormMessage className="text-xs" />
                                     </FormItem>
                                 )}
                             />
@@ -164,10 +172,10 @@ export function IssueForm({ isOpen, onClose }: IssueFormProps) {
                                 name="priority"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Priority</FormLabel>
+                                        <FormLabel className="text-sm sm:text-base">Priority</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
-                                                <SelectTrigger>
+                                                <SelectTrigger className="h-9 sm:h-10">
                                                     <SelectValue placeholder="Select priority" />
                                                 </SelectTrigger>
                                             </FormControl>
@@ -177,19 +185,19 @@ export function IssueForm({ isOpen, onClose }: IssueFormProps) {
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                        <FormMessage />
+                                        <FormMessage className="text-xs" />
                                     </FormItem>
                                 )}
                             />
-                             <FormField
+                            <FormField
                                 control={form.control}
                                 name="assigneeId"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Assignee</FormLabel>
+                                        <FormLabel className="text-sm sm:text-base">Assignee</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
-                                                <SelectTrigger>
+                                                <SelectTrigger className="h-9 sm:h-10">
                                                     <SelectValue placeholder="Assign to user (optional)" />
                                                 </SelectTrigger>
                                             </FormControl>
@@ -200,16 +208,16 @@ export function IssueForm({ isOpen, onClose }: IssueFormProps) {
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                        <FormMessage />
+                                        <FormMessage className="text-xs" />
                                     </FormItem>
                                 )}
                             />
                         </div>
-						<DialogFooter>
+						<DialogFooter className="pt-2 sm:pt-4 gap-2">
 							<DialogClose asChild>
-								<Button type="button" variant="outline">Cancel</Button>
+								<Button type="button" variant="outline" size="sm" className="h-9 sm:h-10">Cancel</Button>
 							</DialogClose>
-							<Button type="submit" disabled={isSubmitting}>
+							<Button type="submit" disabled={isSubmitting} size="sm" className="h-9 sm:h-10">
                                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 								{isSubmitting ? "Creating..." : "Create Issue"}
 							</Button>

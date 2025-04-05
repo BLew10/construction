@@ -21,6 +21,8 @@ import {
   Plus,
   Pencil,
   Trash2,
+  Search,
+  Filter,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -45,7 +47,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Issue, issuePrioritySchema, issueStatusSchema } from "@/types/issue";
 import { format } from "date-fns";
-import Link from "next/link"; // Import Link
+import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 // Helper function for priority badge variant
 const getPriorityVariant = (
@@ -97,13 +102,18 @@ export const columns: ColumnDef<Issue>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="whitespace-nowrap"
       >
         Title
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("title")}</div>
+      <div className="font-medium">
+        <Link href={`/issues/${row.original.id}`} className="hover:underline break-words line-clamp-2">
+          {row.getValue("title")}
+        </Link>
+      </div>
     ),
   },
   {
@@ -112,6 +122,7 @@ export const columns: ColumnDef<Issue>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="whitespace-nowrap"
       >
         Project
         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -123,7 +134,7 @@ export const columns: ColumnDef<Issue>[] = [
       return (
         <Link
           href={`/projects/${issue.projectId}/issues`}
-          className="hover:underline"
+          className="hover:underline whitespace-nowrap overflow-hidden text-ellipsis max-w-[140px] block"
         >
           {issue.projectName}
         </Link>
@@ -149,7 +160,7 @@ export const columns: ColumnDef<Issue>[] = [
     accessorKey: "priority",
     header: "Priority",
     cell: ({ row }) => (
-      <Badge variant={getPriorityVariant(row.getValue("priority")) as "success" | "secondary" | "outline" | "default"}>
+      <Badge variant={getPriorityVariant(row.getValue("priority")) as any}>
         {row.getValue("priority")}
       </Badge>
     ),
@@ -176,6 +187,7 @@ export const columns: ColumnDef<Issue>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="whitespace-nowrap"
       >
         Created
         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -206,11 +218,13 @@ export const columns: ColumnDef<Issue>[] = [
               Copy issue ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Pencil className="mr-2 h-4 w-4" /> Edit Issue (Not Implemented)
-            </DropdownMenuItem>
+            <Link href={`/issues/${issue.id}`} className="w-full">
+              <DropdownMenuItem>
+                <Pencil className="mr-2 h-4 w-4" /> Edit Issue
+              </DropdownMenuItem>
+            </Link>
             <DropdownMenuItem className="text-red-600 focus:text-red-600">
-              <Trash2 className="mr-2 h-4 w-4" /> Delete Issue (Not Implemented)
+              <Trash2 className="mr-2 h-4 w-4" /> Delete Issue
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -236,8 +250,42 @@ export function IssuesDataTable({
     []
   );
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>({
+      projectName: true,
+      assigneeName: true,
+      createdAt: true,
+    });
   const [rowSelection, setRowSelection] = React.useState({});
+
+  // Hide less important columns on smaller screens
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  
+  React.useEffect(() => {
+    if (isMobile) {
+      setColumnVisibility({
+        title: true,
+        status: true,
+        priority: true,
+        projectName: false,
+        assigneeName: false,
+        createdAt: false,
+        actions: true,
+      });
+    } else {
+      setColumnVisibility({
+        title: true,
+        status: true,
+        priority: true,
+        projectName: true,
+        assigneeName: true,
+        createdAt: true,
+        actions: true,
+      });
+    }
+  }, [isMobile]);
+
+  const [filterMenuOpen, setFilterMenuOpen] = React.useState(false);
+  const [searchInputVisible, setSearchInputVisible] = React.useState(false);
 
   const table = useReactTable({
     data,
@@ -258,45 +306,152 @@ export function IssuesDataTable({
     },
   });
 
+  // Mobile Card View (instead of table rows)
+  const MobileCardView = () => (
+    <div className="space-y-3 md:hidden">
+      {table.getRowModel().rows.length > 0 ? (
+        table.getRowModel().rows.map((row) => (
+          <Card key={row.id} className="overflow-hidden">
+            <CardContent className="p-3">
+              <div className="flex justify-between items-start gap-2 mb-2">
+                <div className="font-medium break-words line-clamp-2 flex-1">
+                  <Link href={`/issues/${row.original.id}`} className="hover:underline">
+                    {row.getValue("title")}
+                  </Link>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => navigator.clipboard.writeText(row.original.id!)}>
+                      Copy ID
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <Link href={`/issues/${row.original.id}`} className="w-full">
+                      <DropdownMenuItem>
+                        <Pencil className="mr-2 h-4 w-4" /> Edit
+                      </DropdownMenuItem>
+                    </Link>
+                    <DropdownMenuItem className="text-red-600 focus:text-red-600">
+                      <Trash2 className="mr-2 h-4 w-4" /> Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2 text-sm my-1">
+                <div className="text-muted-foreground">Project:</div>
+                <div className="truncate">
+                  <Link href={`/projects/${row.original.projectId}/issues`} className="hover:underline">
+                    {row.getValue("projectName")}
+                  </Link>
+                </div>
+                
+                <div className="text-muted-foreground">Status:</div>
+                <div>
+                  <Badge variant={getStatusVariant(row.getValue("status"))}>
+                    {row.getValue("status")}
+                  </Badge>
+                </div>
+                
+                <div className="text-muted-foreground">Priority:</div>
+                <div>
+                  <Badge variant={getPriorityVariant(row.getValue("priority")) as any}>
+                    {row.getValue("priority")}
+                  </Badge>
+                </div>
+                
+                <div className="text-muted-foreground">Assignee:</div>
+                <div className="truncate">
+                  {row.getValue("assigneeName") || (
+                    <span className="text-muted-foreground italic">Unassigned</span>
+                  )}
+                </div>
+                
+                <div className="text-muted-foreground">Created:</div>
+                <div>{format(new Date(row.getValue("createdAt")), "MMM d, yyyy")}</div>
+              </div>
+            </CardContent>
+          </Card>
+        ))
+      ) : (
+        <div className="text-center p-4 bg-muted/20 rounded-lg">
+          {isLoading ? "Loading issues..." : "No issues found."}
+        </div>
+      )}
+    </div>
+  );
+
   return (
-    <div className="w-full space-y-4">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <Input
-          placeholder="Filter by title..."
-          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("title")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        <div className="flex items-center gap-2">
-          {/* Add Filter Dropdowns Here (Status, Priority, Project) - Example for Status */}
-          <DropdownMenu>
+    <div className="w-full space-y-3 md:space-y-4">
+      <div className="flex flex-col sm:flex-row gap-3 justify-between">
+        <div className={cn(
+          "flex items-center gap-2",
+          searchInputVisible ? "w-full sm:w-auto" : "w-auto"
+        )}>
+          {searchInputVisible ? (
+            <Input
+              placeholder="Filter by title..."
+              value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+              onChange={(event) => table.getColumn("title")?.setFilterValue(event.target.value)}
+              className="max-w-full sm:max-w-xs"
+            />
+          ) : null}
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            className={searchInputVisible ? "sm:hidden" : ""}
+            onClick={() => setSearchInputVisible(!searchInputVisible)}
+          >
+            <Search className="h-4 w-4 mr-2" />
+            {!searchInputVisible && <span className="hidden sm:inline">Search</span>}
+          </Button>
+        </div>
+        
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          <DropdownMenu open={filterMenuOpen} onOpenChange={setFilterMenuOpen}>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Status <ChevronDown className="ml-2 h-4 w-4" />
+              <Button variant="outline" size="sm">
+                <Filter className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Filter</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {/* Add logic to manage status filter state */}
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuLabel>Status</DropdownMenuLabel>
               {issueStatusSchema.options.map((status) => (
                 <DropdownMenuCheckboxItem
                   key={status}
                   className="capitalize"
-                  // checked={...} // Add state check
-                  // onCheckedChange={(value) => ...} // Add state update
+                  // Add state management as needed
                 >
                   {status}
+                </DropdownMenuCheckboxItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Priority</DropdownMenuLabel>
+              {issuePrioritySchema.options.map((priority) => (
+                <DropdownMenuCheckboxItem
+                  key={priority}
+                  className="capitalize"
+                  // Add state management as needed
+                >
+                  {priority}
                 </DropdownMenuCheckboxItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Column Visibility Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              <Button variant="outline" size="sm" className="ml-auto">
+                <span className="hidden sm:inline">Columns</span>
+                <ChevronDown className="h-4 w-4 sm:ml-2" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -313,34 +468,40 @@ export function IssuesDataTable({
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {column.id === "assigneeName" ? "Assignee" : 
+                       column.id === "projectName" ? "Project" : 
+                       column.id === "createdAt" ? "Created" : 
+                       column.id}
                     </DropdownMenuCheckboxItem>
                   );
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button onClick={onCreateNew}>
-            <Plus className="mr-2 h-4 w-4" /> Create Issue
+          <Button size="sm" onClick={onCreateNew}>
+            <Plus className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Create Issue</span>
           </Button>
         </div>
       </div>
-      <div className="rounded-md border">
+
+      {/* Show cards on mobile, table on desktop */}
+      <MobileCardView />
+
+      <div className="rounded-md border hidden md:block">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
@@ -374,28 +535,35 @@ export function IssuesDataTable({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        {/* Add selected row count if using checkboxes */}
-        {/* <div className="flex-1 text-sm text-muted-foreground">
-                    {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                    {table.getFilteredRowModel().rows.length} row(s) selected.
-                </div> */}
-        <div className="space-x-2">
+
+      <div className="flex items-center justify-between py-2">
+        <div className="text-xs text-muted-foreground hidden sm:block">
+          {data.length} {data.length === 1 ? "issue" : "issues"} total
+        </div>
+        <div className="flex items-center space-x-2 ml-auto">
           <Button
             variant="outline"
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            className="h-8 w-8 p-0 sm:w-auto sm:px-3"
           >
-            Previous
+            <span className="sr-only sm:not-sr-only sm:inline-block">Previous</span>
+            <span className="sm:hidden">&lt;</span>
           </Button>
+          <div className="text-xs sm:text-sm">
+            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount()}
+          </div>
           <Button
             variant="outline"
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            className="h-8 w-8 p-0 sm:w-auto sm:px-3"
           >
-            Next
+            <span className="sr-only sm:not-sr-only sm:inline-block">Next</span>
+            <span className="sm:hidden">&gt;</span>
           </Button>
         </div>
       </div>
