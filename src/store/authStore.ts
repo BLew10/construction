@@ -39,9 +39,9 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()(
 	persist(
 		(set) => ({
-			user: mockUser,
+			user: mockUser, // TODO: Remove this mock user
 			isAuthenticated: true,
-			token: "mock-token-123",
+			token: "mock-token-123", // TODO: Remove this mock token
 			login: (userData: User, token: string) =>
 				set({
 					user: userData,
