@@ -10,6 +10,7 @@ export type UserRole =
 interface User {
 	id: string;
 	email: string;
+	avatarUrl: string;
 	name: string;
 	role: UserRole;
 	companyId: string;
