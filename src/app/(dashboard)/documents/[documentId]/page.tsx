@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useDocumentsStore } from "@/store/documentsStore";
+import { useDocumentsStore, DocumentStatus } from "@/store/documentsStore";
 import { useAuthStore } from "@/store/authStore";
 import { useProjectsStore } from "@/store/projectsStore"; // Import projects store
 import { Button } from "@/components/ui/button";
@@ -12,13 +12,29 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { ChevronLeft, MessageCircle, ArrowUpDown, FileText, Cpu, FolderKanban } from "lucide-react";
+import {
+  ChevronLeft,
+  MessageCircle,
+  ArrowUpDown,
+  FileText,
+  Cpu,
+  FolderKanban,
+  Edit,
+} from "lucide-react";
 import { DocumentViewer } from "../(components)/document-viewer";
 import { DocumentComments } from "../(components)/document-comments";
 import { DocumentVersionHistory } from "../(components)/document-version-history";
 import { DocumentAIInsights } from "../(components)/document-ai-insights";
 import { DocumentStatusBadge } from "../(components)/document-status-badge";
-
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 export default function DocumentDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -33,7 +49,8 @@ export default function DocumentDetailPage() {
     error,
     comments,
     processDocumentWithAI,
-    isProcessing
+    isProcessing,
+    updateDocument,
   } = useDocumentsStore();
   const { projects, fetchProjects: fetchUserProjects } = useProjectsStore(); // Get projects for linking/display
   const [activeTab, setActiveTab] = useState("preview");
@@ -45,9 +62,15 @@ export default function DocumentDetailPage() {
     }
     // Fetch projects if needed for display, ensure it runs only once or when necessary
     if (projects.length === 0) {
-       fetchUserProjects();
+      fetchUserProjects();
     }
-  }, [documentId, fetchDocument, fetchComments, fetchUserProjects, projects.length]);
+  }, [
+    documentId,
+    fetchDocument,
+    fetchComments,
+    fetchUserProjects,
+    projects.length,
+  ]);
 
   const handleRunAI = async () => {
     if (currentDocument && !currentDocument.aiProcessed) {
@@ -57,18 +80,29 @@ export default function DocumentDetailPage() {
     }
   };
 
+  const handleStatusChange = async (newStatus: DocumentStatus) => {
+    if (currentDocument) {
+      // Optimistic update (optional, but good UX)
+      // You might want to update the local state immediately
+      // before the async call completes, or handle loading states.
+      await updateDocument(currentDocument.id, { status: newStatus });
+      // Optionally re-fetch to confirm, though updateDocument should handle state
+      // await fetchDocument(documentId);
+    }
+  };
+
   // Update back button to go to the main documents page
   const handleBack = () => {
     router.push(`/documents`);
   };
 
   const formatDate = (dateString: string | undefined): string => {
-     if (!dateString) return "N/A";
-     try {
-       return format(new Date(dateString), "PP");
-     } catch {
-       return "Invalid Date";
-     }
+    if (!dateString) return "N/A";
+    try {
+      return format(new Date(dateString), "PP");
+    } catch {
+      return "Invalid Date";
+    }
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -77,11 +111,12 @@ export default function DocumentDetailPage() {
     return (bytes / 1048576).toFixed(1) + " MB";
   };
 
-   const getProjectName = (projectId: string): string => {
-    return projects.find(p => p.id === projectId)?.name || "Loading...";
+  const getProjectName = (projectId: string): string => {
+    return projects.find((p) => p.id === projectId)?.name || "Loading...";
   };
 
-  if (isLoading && !currentDocument) { // Show loading only if document isn't already loaded
+  if (isLoading && !currentDocument) {
+    // Show loading only if document isn't already loaded
     return (
       <div className="flex justify-center py-12">
         <p>Loading document details...</p>
@@ -92,7 +127,10 @@ export default function DocumentDetailPage() {
   if (error) {
     return (
       <div className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded-md">
-        {error} - <Button variant="link" onClick={handleBack}>Go back</Button>
+        {error} -{" "}
+        <Button variant="link" onClick={handleBack}>
+          Go back
+        </Button>
       </div>
     );
   }
@@ -100,7 +138,7 @@ export default function DocumentDetailPage() {
   if (!currentDocument) {
     // This might happen briefly while loading or if the doc truly doesn't exist
     return (
-       <div className="flex justify-center py-12">
+      <div className="flex justify-center py-12">
         <p>Document not found or still loading...</p>
       </div>
     );
@@ -112,19 +150,27 @@ export default function DocumentDetailPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={handleBack} aria-label="Back to Documents">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleBack}
+            aria-label="Back to Documents"
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div>
-             <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                {currentDocument.name}
-                <DocumentStatusBadge status={currentDocument.status} />
-             </h1>
-             {/* Link to Project */}
-             <Link href={`/projects/${currentDocument.projectId}`} className="text-sm text-muted-foreground hover:underline flex items-center gap-1">
-                 <FolderKanban className="h-3 w-3" />
-                 {getProjectName(currentDocument.projectId)}
-             </Link>
+            <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+              {currentDocument.name}
+              <DocumentStatusBadge status={currentDocument.status} />
+            </h1>
+            {/* Link to Project */}
+            <Link
+              href={`/projects/${currentDocument.projectId}`}
+              className="text-sm text-muted-foreground hover:underline flex items-center gap-1"
+            >
+              <FolderKanban className="h-3 w-3" />
+              {getProjectName(currentDocument.projectId)}
+            </Link>
           </div>
         </div>
 
@@ -140,20 +186,47 @@ export default function DocumentDetailPage() {
               {isProcessing ? "Processing..." : "Run AI Analysis"}
             </Button>
           )}
-          <Button onClick={() => setActiveTab("comments")} size="sm">
-            <MessageCircle className="mr-2 h-4 w-4" />
-            Comments ({currentDocument.commentCount})
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Edit className="mr-2 h-4 w-4" />
+                Change Status
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Assign New Status</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {(
+                ["draft", "pending", "approved", "rejected"] as DocumentStatus[]
+              ).map((status) => (
+                <DropdownMenuItem
+                  key={status}
+                  onClick={() => handleStatusChange(status)}
+                  className={cn(
+                    "capitalize",
+                    currentDocument.status === status &&
+                      "bg-primary/40 text-foreground"
+                  )}
+                >
+                  {status}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           {/* Document Viewer/Tabs Card */}
-           <Card>
+          <Card>
             {/* Removed Header for cleaner look, title implied by context */}
             <CardContent className="p-4 md:p-6">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="w-full"
+              >
                 <TabsList className="grid w-full grid-cols-3 mb-4">
                   <TabsTrigger value="preview">
                     <FileText className="mr-2 h-4 w-4" />
@@ -197,21 +270,30 @@ export default function DocumentDetailPage() {
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Description</h3>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                    Description
+                  </h3>
                   <p className="text-sm">
-                    {currentDocument.description || <span className="italic text-muted-foreground">No description provided.</span>}
+                    {currentDocument.description || (
+                      <span className="italic text-muted-foreground">
+                        No description provided.
+                      </span>
+                    )}
                   </p>
                 </div>
 
                 <Separator />
 
                 <div className="space-y-2 text-sm">
-                   <div className="flex justify-between">
+                  <div className="flex justify-between">
                     <span className="text-muted-foreground">Project</span>
-                     <Link href={`/projects/${currentDocument.projectId}`} className="hover:underline flex items-center gap-1">
-                         <FolderKanban className="h-3 w-3" />
-                         {getProjectName(currentDocument.projectId)}
-                     </Link>
+                    <Link
+                      href={`/projects/${currentDocument.projectId}`}
+                      className="hover:underline flex items-center gap-1"
+                    >
+                      <FolderKanban className="h-3 w-3" />
+                      {getProjectName(currentDocument.projectId)}
+                    </Link>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Type</span>
@@ -227,9 +309,11 @@ export default function DocumentDetailPage() {
                     <span className="text-muted-foreground">File Size</span>
                     <span>{formatFileSize(currentDocument.fileSize)}</span>
                   </div>
-                   <div className="flex justify-between">
+                  <div className="flex justify-between">
                     <span className="text-muted-foreground">File Type</span>
-                    <span className="truncate max-w-[150px]">{currentDocument.fileType}</span>
+                    <span className="truncate max-w-[150px]">
+                      {currentDocument.fileType}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Uploaded</span>
@@ -248,7 +332,9 @@ export default function DocumentDetailPage() {
                   )}
                   {currentDocument.approvedAt && (
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Approved Date</span>
+                      <span className="text-muted-foreground">
+                        Approved Date
+                      </span>
                       <span>{formatDate(currentDocument.approvedAt)}</span>
                     </div>
                   )}
@@ -261,7 +347,7 @@ export default function DocumentDetailPage() {
           {currentDocument.aiProcessed && (
             <DocumentAIInsights document={currentDocument} />
           )}
-           {/* Placeholder for future components like related tasks, etc. */}
+          {/* Placeholder for future components like related tasks, etc. */}
         </div>
       </div>
     </div>
