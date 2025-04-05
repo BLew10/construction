@@ -28,6 +28,7 @@ export default function ProjectLayout({
 			label: "Documents",
 			path: `/projects/${projectId}/documents`,
 		},
+		{ value: "budget", label: "Budget", path: `/projects/${projectId}/budget` },
 		{ value: "team", label: "Team", path: `/projects/${projectId}/team` },
 		// Add more tabs as needed
 	];
