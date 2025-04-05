@@ -23,13 +23,26 @@ export default function Header() {
 		router.push("/login");
 	};
 
-	return (
-		<header className="border-b bg-background z-10">
-			<div className="flex h-16 items-center justify-between px-6">
-				<div></div>
+	const initials = user?.name
+		?.split(" ")
+		.map((n) => n[0])
+		.join("")
+		.toUpperCase() || "";
 
-				<div className="flex items-center gap-4">
-					<Button variant="outline" size="icon">
+	return (
+		<header className="border-b bg-background z-10 sticky top-0">
+			<div className="flex h-16 items-center justify-between px-2 sm:px-4 md:px-6">
+				<div className="lg:hidden w-12">
+					{/* Empty space for mobile to balance the header */}
+				</div>
+
+				<div className="hidden lg:block">
+					{/* Title only visible on desktop since sidebar shows the title on large screens */}
+					<h1 className="text-xl font-semibold">ConstructionPro</h1>
+				</div>
+
+				<div className="flex items-center gap-2 sm:gap-4">
+					<Button variant="outline" size="icon" className="hidden sm:flex">
 						<BellIcon className="h-5 w-5" />
 					</Button>
 
@@ -37,9 +50,9 @@ export default function Header() {
 
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" className="relative h-9 w-9 rounded-full">
-								<div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
-									{user?.name.charAt(0).toUpperCase()}
+							<Button variant="ghost" className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-full">
+								<div className="flex h-full w-full items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
+									{initials}
 								</div>
 							</Button>
 						</DropdownMenuTrigger>

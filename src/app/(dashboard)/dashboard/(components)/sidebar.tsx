@@ -68,10 +68,10 @@ export default function Sidebar() {
 	const [open, setOpen] = useState(false);
 
 	const initials = user?.name
-		.split(" ")
+		?.split(" ")
 		.map((n) => n[0])
 		.join("")
-		.toUpperCase();
+		.toUpperCase() || "";
 
 	const SidebarContent = () => (
 		<div className="space-y-6">
@@ -100,14 +100,30 @@ export default function Sidebar() {
 		<>
 			{/* Mobile Sidebar */}
 			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger asChild className="lg:hidden">
-					<Button variant="outline" size="icon" className="ml-2 mt-2">
+				<SheetTrigger asChild className="fixed top-2 left-2 z-40 lg:hidden">
+					<Button variant="outline" size="icon">
 						<Menu className="h-5 w-5" />
 						<span className="sr-only">Toggle Menu</span>
 					</Button>
 				</SheetTrigger>
-				<SheetContent side="left" className="w-64 p-0">
+				<SheetContent side="left" className="w-64 p-0 pt-10">
 					<SidebarContent />
+					
+					{user && (
+						<div className="mt-auto p-4 border-t">
+							<div className="flex items-center gap-3">
+								<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
+									{initials}
+								</div>
+								<div className="flex flex-col overflow-hidden">
+									<span className="text-sm font-medium truncate">{user?.name}</span>
+									<span className="text-xs text-muted-foreground truncate">
+										{user?.companyName}
+									</span>
+								</div>
+							</div>
+						</div>
+					)}
 				</SheetContent>
 			</Sheet>
 
@@ -116,19 +132,21 @@ export default function Sidebar() {
 				<div className="flex flex-col flex-1 h-screen">
 					<SidebarContent />
 
-					<div className="mt-auto p-4 border-t">
-						<div className="flex items-center gap-3">
-							<div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
-								{initials}
-							</div>
-							<div className="flex flex-col overflow-hidden">
-								<span className="text-sm font-medium">{user?.name}</span>
-								<span className="text-xs text-muted-foreground truncate">
-									{user?.companyName}
-								</span>
+					{user && (
+						<div className="mt-auto p-4 border-t">
+							<div className="flex items-center gap-3">
+								<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
+									{initials}
+								</div>
+								<div className="flex flex-col overflow-hidden">
+									<span className="text-sm font-medium truncate">{user?.name}</span>
+									<span className="text-xs text-muted-foreground truncate">
+										{user?.companyName}
+									</span>
+								</div>
 							</div>
 						</div>
-					</div>
+					)}
 				</div>
 			</div>
 		</>
