@@ -21,7 +21,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { formatDistanceToNow } from "date-fns";
-import { CheckCircle, Reply, TrashIcon, Pencil } from "lucide-react";
+import { CheckCircle, Reply, TrashIcon, Pencil, MoreVertical } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface DocumentCommentsProps {
   document: Document;
@@ -167,186 +173,201 @@ export function DocumentComments({
     setEditingContent("");
   };
 
-  const renderComment = (comment: DocumentComment, isReply = false) => (
-    <div
-      key={comment.id}
-      className={`flex space-x-3 ${isReply ? "ml-8 mt-3" : "mt-4"}`}
-    >
-      <Avatar className="h-8 w-8">
-        <AvatarImage src={comment.userAvatar} alt={comment.userName} />
-        <AvatarFallback>
-          {comment.userName?.charAt(0).toUpperCase() || "U"}
-        </AvatarFallback>
-      </Avatar>
-      <div className="flex-1 space-y-1">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">{comment.userName}</span>
-            <span className="text-xs text-muted-foreground">
-              {formatDistanceToNow(new Date(comment.createdAt), {
-                addSuffix: true,
-              })}
-            </span>
-            {comment.updatedAt && comment.createdAt !== comment.updatedAt && (
-              <span className="text-xs text-muted-foreground italic">
-                (edited)
-              </span>
-            )}
-          </div>
-          {/* Actions: Resolve, Reply, Edit, Delete */}
-          <div className="flex items-center space-x-1">
-            {/* Resolve Toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`h-7 w-7 ${
-                comment.resolved
-                  ? "text-green-600 hover:text-green-700"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-              onClick={() =>
-                handleResolveComment(comment.id, !comment.resolved)
-              }
-              title={
-                comment.resolved ? "Mark as unresolved" : "Mark as resolved"
-              }
-            >
-              <CheckCircle className="h-4 w-4" />
-            </Button>
-            {!isReply && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                onClick={() =>
-                  setReplyingTo(replyingTo === comment.id ? null : comment.id)
-                }
-                title="Reply"
-              >
-                <Reply className="h-4 w-4" />
-              </Button>
-            )}
-            {comment.userId === user.id && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                  onClick={() => handleEditComment(comment)}
-                  title="Edit"
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-destructive hover:text-destructive/80"
-                  onClick={() => handleDeleteComment(comment.id)}
-                  title="Delete"
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </Button>
-              </>
-            )}
+  const renderComment = (comment: DocumentComment, isReply = false) => {
+    const isEditing = editingCommentId === comment.id;
+    const isCurrentUser = comment.userId === user.id;
+    const replies = comments.filter((c) => c.parentId === comment.id);
+
+    return (
+      <div key={comment.id} className={`${isReply ? "ml-6 sm:ml-10 mt-3" : "mt-4"}`}>
+        <div className={`p-3 sm:p-4 rounded-lg ${comment.resolved ? "bg-muted/50" : "bg-card"} border`}>
+          <div className="flex items-start justify-between gap-3">
+            <Avatar className="h-8 w-8 flex-shrink-0">
+              <AvatarImage src={comment.userAvatar} alt={comment.userName} />
+              <AvatarFallback>
+                {comment.userName?.charAt(0).toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+            
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-start justify-between gap-1 mb-1">
+                <div>
+                  <span className="font-medium text-sm">
+                    {comment.userName}
+                  </span>
+                  <span className="text-xs text-muted-foreground ml-2">
+                    {formatDistanceToNow(new Date(comment.createdAt), {
+                      addSuffix: true,
+                    })}
+                  </span>
+                </div>
+                
+                {/* Mobile action button */}
+                <div className="sm:hidden">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-7 w-7">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {isCurrentUser && (
+                        <>
+                          <DropdownMenuItem onClick={() => handleEditComment(comment)}>
+                            <Pencil className="h-4 w-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => setCommentToDeleteId(comment.id)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <TrashIcon className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                      <DropdownMenuItem onClick={() => setReplyingTo(comment.id)}>
+                        <Reply className="h-4 w-4 mr-2" />
+                        Reply
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleResolveComment(comment.id, !comment.resolved)}>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        {comment.resolved ? "Unresolve" : "Resolve"}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                
+                {/* Desktop action buttons */}
+                <div className="hidden sm:flex sm:space-x-1">
+                  {isCurrentUser && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => handleEditComment(comment)}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-destructive"
+                        onClick={() => setCommentToDeleteId(comment.id)}
+                      >
+                        <TrashIcon className="h-3.5 w-3.5" />
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => setReplyingTo(comment.id)}
+                  >
+                    <Reply className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={`h-7 w-7 ${
+                      comment.resolved ? "text-green-500" : ""
+                    }`}
+                    onClick={() => handleResolveComment(comment.id, !comment.resolved)}
+                  >
+                    <CheckCircle className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+
+              {isEditing ? (
+                <div className="space-y-2">
+                  <Textarea
+                    value={editingContent}
+                    onChange={(e) => setEditingContent(e.target.value)}
+                    className="min-h-[80px] text-sm"
+                  />
+                  <div className="flex justify-end space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEditingCommentId(null)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleUpdateComment}
+                    >
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className={`text-sm ${comment.resolved ? "text-muted-foreground" : ""}`}>
+                  {comment.content}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {editingCommentId === comment.id ? (
-          <div className="space-y-2">
-            <Textarea
-              value={editingContent}
-              onChange={(e) => setEditingContent(e.target.value)}
-              className="min-h-[60px]"
-            />
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setEditingCommentId(null)}
-              >
-                Cancel
-              </Button>
-              <Button size="sm" onClick={handleUpdateComment}>
-                Save Changes
-              </Button>
-            </div>
+        {/* Show any replies */}
+        {replies.length > 0 && (
+          <div className="space-y-3 mt-3">
+            {replies.map((reply) => renderComment(reply, true))}
           </div>
-        ) : (
-          <p
-            className={`text-sm ${
-              comment.resolved ? "text-muted-foreground line-through" : ""
-            }`}
-          >
-            {comment.content}
-          </p>
         )}
 
-        {/* Reply Input */}
-        {replyingTo === comment.id && !isReply && (
-          <div className="mt-3 pt-3 border-t border-dashed">
-            <h4 className="text-xs font-medium mb-1">
-              Reply to {comment.userName}
-            </h4>
+        {/* Reply form if user is replying to this comment */}
+        {replyingTo === comment.id && (
+          <div className="ml-6 sm:ml-10 mt-3 p-3 bg-muted/30 border rounded-lg">
             <div className="flex items-start space-x-3">
-              <Avatar className="h-6 w-6">
-                <AvatarImage
-                  src={user.avatarUrl}
-                  alt={user.name || user.email}
+              <Avatar className="h-7 w-7">
+                <AvatarImage 
+                  src={user.avatarUrl} 
+                  alt={user.name || user.email} 
                 />
                 <AvatarFallback>
                   {user.name?.charAt(0).toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1">
+              <div className="flex-1 space-y-2">
                 <Textarea
-                  placeholder="Write a reply..."
-                  value={replyContent}
-                  onChange={(e) => setReplyContent(e.target.value)}
-                  className="min-h-[60px]"
+                  placeholder={`Reply to ${comment.userName}...`}
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  className="min-h-[80px] text-sm"
                 />
-                <div className="flex justify-end gap-2 mt-2">
+                <div className="flex justify-end space-x-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      setReplyingTo(null);
-                      setReplyContent("");
-                    }}
+                    onClick={() => setReplyingTo(null)}
                   >
                     Cancel
                   </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => handleAddReply(comment.id)}
-                    disabled={!replyContent.trim()}
-                  >
-                    Post Reply
+                  <Button size="sm" onClick={() => handleAddReply(comment.id)}>
+                    Reply
                   </Button>
                 </div>
               </div>
             </div>
           </div>
         )}
-
-        {/* Render Replies */}
-        {comments
-          .filter((reply) => reply.parentId === comment.id)
-          .map((reply) => renderComment(reply, true))}
       </div>
-    </div>
-  );
+    );
+  };
 
   const topLevelComments = comments.filter((comment) => !comment.parentId);
 
   return (
-    <div className="space-y-6">
-      <h3 className="text-lg font-medium">Comments ({comments.length})</h3>
-
-      {/* List existing comments */}
-      {topLevelComments.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-4 text-center">
-          No comments yet.
-        </p>
+    <div className="space-y-4">
+      {comments.length === 0 ? (
+        <div className="text-center py-6 text-muted-foreground">
+          No comments yet. Be the first to add one!
+        </div>
       ) : (
         <div className="space-y-4">
           {topLevelComments.map((comment) => renderComment(comment))}
@@ -357,7 +378,7 @@ export function DocumentComments({
       <div className="mt-6 pt-6 border-t">
         <h3 className="text-sm font-medium mb-2">Add a comment</h3>
         <div className="flex items-start space-x-3">
-          <Avatar className="h-8 w-8">
+          <Avatar className="h-8 w-8 hidden sm:block">
             <AvatarImage
               src={user.avatarUrl}
               alt={user.name || user.email}
@@ -387,9 +408,9 @@ export function DocumentComments({
         open={!!commentToDeleteId}
         onOpenChange={(open) => !open && setCommentToDeleteId(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Comment?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the
               comment.

@@ -10,13 +10,17 @@ export default function DashboardPage() {
   const { user } = useAuthStore();
 
   return (
-    <div className="space-y-6">
+    <div className="container px-4 sm:px-6 mx-auto space-y-4 sm:space-y-6">
       <WelcomeHeader userName={user?.name} />
       <StatsCards />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <RecentProjects />
-        <RecentActivity />
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="md:col-span-2 lg:col-span-1 lg:row-span-1">
+          <RecentProjects />
+        </div>
+        <div className="md:col-span-2 lg:col-span-1 lg:row-span-1">
+          <RecentActivity />
+        </div>
       </div>
     </div>
   );

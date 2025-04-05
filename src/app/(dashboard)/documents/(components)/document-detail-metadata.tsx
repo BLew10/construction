@@ -48,55 +48,52 @@ const DocumentDetailMetadataComponent: React.FC<DocumentDetailMetadataProps> = (
 
       <Separator />
 
-      <div className="space-y-2 text-sm">
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Project</span>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+        <div className="text-muted-foreground">Project</div>
+        <div className="text-right">
           <Link
             href={`/projects/${document.projectId}`}
-            className="hover:underline flex items-center gap-1"
+            className="hover:underline flex items-center justify-end gap-1"
           >
             <FolderKanban className="h-3 w-3" />
-            {projectName}
+            <span className="truncate">{projectName}</span>
           </Link>
         </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Type</span>
+        
+        <div className="text-muted-foreground">Type</div>
+        <div className="text-right">
           <Badge variant="outline" className="capitalize">
             {document.type}
           </Badge>
         </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Version</span>
-          <span>v{document.version}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">File Size</span>
-          <span>{formatFileSize(document.fileSize)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">File Type</span>
-          <span className="truncate max-w-[150px]">{document.fileType}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Uploaded</span>
-          <span>{formatDate(document.uploadedAt)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Uploaded By</span>
-          {/* In real app, fetch user name based on ID */}
-          <span>User: {document.uploadedBy}</span>
-        </div>
+        
+        <div className="text-muted-foreground">Version</div>
+        <div className="text-right">v{document.version}</div>
+        
+        <div className="text-muted-foreground">File Size</div>
+        <div className="text-right">{formatFileSize(document.fileSize)}</div>
+        
+        <div className="text-muted-foreground">File Type</div>
+        <div className="text-right truncate">{document.fileType}</div>
+        
+        <div className="text-muted-foreground">Uploaded</div>
+        <div className="text-right">{formatDate(document.uploadedAt)}</div>
+        
+        <div className="text-muted-foreground">Uploaded By</div>
+        <div className="text-right truncate">User: {document.uploadedBy}</div>
+        
         {document.approvedBy && (
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Approved By</span>
-            <span>User: {document.approvedBy}</span>
-          </div>
+          <>
+            <div className="text-muted-foreground">Approved By</div>
+            <div className="text-right truncate">User: {document.approvedBy}</div>
+          </>
         )}
+        
         {document.approvedAt && (
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Approved Date</span>
-            <span>{formatDate(document.approvedAt)}</span>
-          </div>
+          <>
+            <div className="text-muted-foreground">Approved Date</div>
+            <div className="text-right">{formatDate(document.approvedAt)}</div>
+          </>
         )}
       </div>
     </div>

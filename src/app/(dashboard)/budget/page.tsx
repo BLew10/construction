@@ -67,10 +67,10 @@ export default function BudgetOverviewPage() {
 	const totalRemainingBudget = detailedProjects.reduce((sum, p) => sum + p.remainingBudget, 0);
 
 	return (
-		<div className="space-y-6">
+		<div className="container px-4 sm:px-6 lg:px-8 py-4 sm:py-6 mx-auto space-y-4 sm:space-y-6">
 			<div>
-				<h1 className="text-3xl font-bold tracking-tight">Budget Overview</h1>
-				<p className="text-muted-foreground mt-2">
+				<h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Budget Overview</h1>
+				<p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
 					Summary of budget performance across all projects.
 				</p>
 			</div>
@@ -87,14 +87,14 @@ export default function BudgetOverviewPage() {
 			/>
 
 			{/* Projects Budget List */}
-			<Card>
-				<CardHeader>
-					<CardTitle className="flex items-center gap-2">
-						<CircleDollarSign className="h-5 w-5" />
+			<Card className="overflow-hidden">
+				<CardHeader className="px-4 sm:px-6">
+					<CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+						<CircleDollarSign className="h-4 w-4 sm:h-5 sm:w-5" />
 						Projects Budget Summary
 					</CardTitle>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="px-2 sm:px-6">
 					<ProjectsBudgetList projects={detailedProjects} />
 				</CardContent>
 			</Card>

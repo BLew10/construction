@@ -61,8 +61,7 @@ export default function DocumentsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Pass projects to header if needed, or handle project selection in uploader */}
+    <div className="space-y-6 px-2 sm:px-4">
       <DocumentHeader onUpload={() => setShowUploader(true)} />
 
       {error && (
@@ -78,12 +77,11 @@ export default function DocumentsPage() {
             View and manage all documents across your projects.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          {/* Pass projects to filters for the dropdown */}
+        <CardContent className="px-2 sm:px-6">
           <DocumentFilters
             filters={filters}
             setFilters={setFilters}
-            projects={projects} // Pass projects data
+            projects={projects}
           />
 
           {isLoading ? (
@@ -94,7 +92,7 @@ export default function DocumentsPage() {
             <DocumentList
               documents={filteredDocuments}
               formatFileSize={formatFileSize}
-              projects={projects} // Pass projects to potentially display project names
+              projects={projects}
             />
           )}
         </CardContent>

@@ -8,13 +8,13 @@ import {
 
 export function RecentProjects() {
   return (
-    <Card className="col-span-2">
-      <CardHeader>
-        <CardTitle>Recent Projects</CardTitle>
+    <Card className="h-full">
+      <CardHeader className="px-4 sm:px-6 py-4 sm:py-5">
+        <CardTitle className="text-lg sm:text-xl">Recent Projects</CardTitle>
         <CardDescription>Your latest active projects</CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="text-center py-8 text-muted-foreground">
+      <CardContent className="px-4 sm:px-6">
+        <div className="text-center py-6 sm:py-8 text-muted-foreground">
           Projects will appear here once created
         </div>
       </CardContent>
